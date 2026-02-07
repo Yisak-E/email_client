@@ -43,6 +43,7 @@ const Inbox = () => {
   const [selectedEmail, setSelectedEmail] = React.useState<MessageType | null>(null);
   const [filter, setFilter] = React.useState('All');
   const [emailList, setEmailList] = React.useState<MessageType[]>([]);
+  const [searchTerm, setSearchTerm] = React.useState('');
 
 
   React.useEffect(() => {
@@ -58,7 +59,11 @@ const Inbox = () => {
           setEmailList(messagesData.emails.filter(email => email.time === todayLabel) as MessageType[]);
     }
 
-        }, [filter]);
+    if (searchTerm) {
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      setEmailList(prevList => prevList.filter(email => email.sender.toLowerCase().includes(lowerSearchTerm) || email.subject.toLowerCase().includes(lowerSearchTerm) || email.content.toLowerCase().includes(lowerSearchTerm)));
+    }
+  }, [filter, searchTerm]);
 
 
 
@@ -138,7 +143,9 @@ const Inbox = () => {
               onClick={() => setFilter('Unread')}
               className={filter === 'Unread' ? 'text-indigo-700 border-indigo-200' : 'text-gray-600'} 
             />
-            <Typography variant="caption" className="ml-auto cursor-pointer text-indigo-600 font-medium self-center">
+            <Typography 
+
+            variant="caption" className="ml-auto cursor-pointer text-indigo-600 font-medium self-center" onClick={() => setSearchTerm('')}>
               Clear
             </Typography>
           </Box>
@@ -153,7 +160,7 @@ const Inbox = () => {
             className="flex items-center px-3 py-1 bg-gray-100 rounded-full"
           >
             <Search className="text-gray-400 mr-2" />
-            <InputBase placeholder="Global Search" className="text-sm w-full" />
+            <InputBase placeholder="Global Search" className="text-sm w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             <MoreVert className="text-gray-400" />
           </Paper>
         </Box>
