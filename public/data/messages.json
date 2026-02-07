@@ -1,23 +1,143 @@
 {
-    "emails":[
-  {
-    "id": 1,
-    "sender": "Jack Smith", 
-    "subject": "New Business Opportunities", 
-    "content": "Dear Sam, hope this email finds you well. I wanted to discuss some new business opportunities that have come up recently. Let me know when you are available for a quick call. Looking forward to catching up and exploring these opportunities together. Best regards, Jack", 
-    "time": "Now" ,
-    "preview": "Dear Sam, hope this email finds you well. I wanted to discuss some new business opportunities that have come up recently. Let me know when you are available for a quick call. Looking forward to catching up and exploring these opportunities together. Best regards, Jack",
-    "status": "unread",
-    "read": false
-},
-  { "id": 2, "sender": "Sarah Pressth", "subject": "RE: Project Progress", "content": "Hi Sam, I’ve reviewed the latest project progress and everything looks good. We just need to finalize the budget and timeline. Let’s catch up tomorrow to discuss further.", "time": "Yesterday", "status": "read", "read": true },
-  { "id": 3, "sender": "Dan Towards", "subject": "Insurance Documents", "content": "Please find the attached LPO for the insurance documents we discussed. Let me know if you need any additional information or if there are any issues with the documents.", "time": "03 Feb 2026", "status": "read", "read": true },
-  { "id": 4, "sender": "Christine Woods", "subject": "Updated Request", "content": "I would like to prepare a detailed report on the updated request. Can you provide me with the latest data and any specific requirements you have for the report?", "time": "23 Dec 2025", "status": "read", "read": true },
-  { "id": 5, "sender": "Michael Lee", "subject": "Meeting Schedule", "content": "Can we reschedule our meeting to next week? I have a conflict with my current schedule and would like to find a time that works for both of us.", "time": "15 Dec 2025", "status": "read", "read": true },
-  { "id": 6, "sender": "Emily Davis", "subject": "Project Update", "content": "The project is progressing well. We have completed the initial phases and are on track for the next milestones. I will keep you updated on any significant developments.", "time": "10 Dec 2025", "status": "unread", "read": false },
-  { "id": 7, "sender": "David Brown", "subject": "Invoice for Services", "content": "Please find attached the invoice for the services provided. Let me know if you have any questions or if there are any issues with the invoice.", "time": "05 Dec 2025", "status": "unread", "read": false },
-  { "id": 8, "sender": "Sophia Wilson", "subject": "New Collaboration", "content": "I am interested in collaborating on your upcoming project. I believe my expertise could be a great fit. Let’s discuss how we can work together.", "time": "01 Dec 2025", "status": "unread", "read": false },
-  { "id": 9, "sender": "James Taylor", "subject": "Feedback on Proposal", "content": "I have some feedback regarding your proposal. Overall, it looks promising, but I have a few suggestions that could improve it. Let’s schedule a time to go over the details.", "time": "28 Nov 2025", "status": "unread", "read": false },
-  { "id": 10, "sender": "Olivia Martinez", "subject": "Event Invitation", "content": "You are invited to our annual event. It will be a great opportunity to network and learn about the latest industry trends. Please let us know if you can attend.", "time": "20 Nov 2025", "status": "unread", "read": false }
-]
+  "emails": [
+    {
+      "id": 1,
+      "sender": "Jack Smith",
+      "subject": "New Business Opportunities",
+      "content": "Dear Sam, hope this email finds you well. I wanted to discuss some new business opportunities that have come up recently and get your thoughts on which ones align best with our current roadmap. I’ve attached a short summary of each opportunity, including potential revenue impact and required resources. Let me know when you are available for a quick call this week so we can review everything together and agree on next steps. Looking forward to catching up and exploring these opportunities together. Best regards, Jack",
+      "time": "Now",
+      "preview": "Dear Sam, hope this email finds you well. I wanted to discuss some new business opportunities that have come up recently and get your thoughts on which ones align best with our current roadmap.",
+      "status": "unread",
+      "read": false
+    },
+    {
+      "id": 2,
+      "sender": "Sarah Pressth",
+      "subject": "RE: Project Progress",
+      "content": "Hi Sam, I’ve reviewed the latest project progress and overall everything looks good. The core features are behaving as expected in staging, and the performance metrics are within our target range. The remaining work is mostly around polishing the UI, tightening up a few edge cases, and finalizing the budget and timeline. Please let me know if there are any risks on your side that we should factor into the launch plan. Let’s catch up tomorrow to walk through the open items and confirm the final dates.",
+      "time": "Yesterday",
+      "preview": "Hi Sam, I’ve reviewed the latest project progress and overall everything looks good. The core features are behaving as expected in staging, and the performance metrics are within our target range.",
+      "status": "read",
+      "read": true
+    },
+    {
+      "id": 3,
+      "sender": "Dan Towards",
+      "subject": "Insurance Documents",
+      "content": "Hi Sam, please find the attached LPO and supporting insurance documents we discussed during our last call. I’ve also included a brief checklist outlining the key items you should review, such as coverage limits, renewal dates, and special conditions. If you notice anything that doesn’t match what we agreed on, reply with your comments or mark them directly in the document. Once you are comfortable with everything, we can proceed with the final signatures and filing.",
+      "time": "03 Feb 2026",
+      "preview": "Hi Sam, please find the attached LPO and supporting insurance documents we discussed during our last call. I’ve also included a brief checklist outlining the key items you should review.",
+      "status": "read",
+      "read": true
+    },
+    {
+      "id": 4,
+      "sender": "Christine Woods",
+      "subject": "Updated Request",
+      "content": "Hello Sam, I would like to prepare a detailed report on the updated request you sent earlier this week. To make sure the report is accurate and useful for your stakeholders, could you share the latest data exports, any updated KPIs, and a short description of what decisions this report should support? Once I have that information, I’ll draft the first version and send it to you for review. If you prefer, we can also schedule a quick call to clarify the scope before I begin.",
+      "time": "23 Dec 2025",
+      "preview": "Hello Sam, I would like to prepare a detailed report on the updated request you sent earlier this week and make sure it gives you exactly what you need.",
+      "status": "read",
+      "read": true
+    },
+    {
+      "id": 5,
+      "sender": "Michael Lee",
+      "subject": "Meeting Schedule",
+      "content": "Hi Sam, can we reschedule our meeting to next week? I have a conflict with my current schedule and want to make sure we have enough time to properly review the roadmap and open issues. Please send over a few alternative time slots that work for you, ideally in the afternoon, and I’ll confirm one as soon as I can. If it’s easier, we can also turn this into a virtual meeting so we don’t lose momentum on the project.",
+      "time": "15 Dec 2025",
+      "preview": "Hi Sam, can we reschedule our meeting to next week? I have a conflict with my current schedule and want to make sure we have enough time to properly review the roadmap and open issues.",
+      "status": "read",
+      "read": true
+    },
+    {
+      "id": 6,
+      "sender": "Emily Davis",
+      "subject": "Project Update",
+      "content": "Hi Sam, the project is progressing well and we’ve completed the initial phases on time. The core architecture has been validated and the team is now moving into integration and user acceptance testing. There are a few minor issues that we’re tracking, but none of them are blocking the main milestones. I’ll send you a detailed status report at the end of the week with updated timelines, risks, and mitigation plans. In the meantime, let me know if there are any priorities you’d like us to adjust.",
+      "time": "10 Dec 2025",
+      "preview": "Hi Sam, the project is progressing well and we’ve completed the initial phases on time. The core architecture has been validated and the team is now moving into integration and testing.",
+      "status": "unread",
+      "read": false
+    },
+    {
+      "id": 7,
+      "sender": "David Brown",
+      "subject": "Invoice for Services",
+      "content": "Dear Sam, please find attached the invoice for the services provided during the last billing period. The invoice includes a detailed breakdown of hours, tasks completed, and any additional expenses that were pre-approved. Kindly review the document at your convenience and let me know if anything looks incorrect or needs clarification. Payment instructions are included on the final page. Thank you again for your continued collaboration.",
+      "time": "05 Dec 2025",
+      "preview": "Dear Sam, please find attached the invoice for the services provided during the last billing period, including a detailed breakdown of hours and tasks completed.",
+      "status": "unread",
+      "read": false
+    },
+    {
+      "id": 8,
+      "sender": "Sophia Wilson",
+      "subject": "New Collaboration",
+      "content": "Hi Sam, I am very interested in collaborating on your upcoming project. From what you shared, it seems like a great fit for my experience with cross‑functional product launches and stakeholder communication. I’d love to learn more about your goals, timelines, and any specific challenges you’re facing. If you’re open to it, let’s schedule a short intro meeting next week so we can explore how we might work together.",
+      "time": "01 Dec 2025",
+      "preview": "Hi Sam, I am very interested in collaborating on your upcoming project and it sounds like a great fit for my experience with cross‑functional product launches.",
+      "status": "unread",
+      "read": false
+    },
+    {
+      "id": 9,
+      "sender": "James Taylor",
+      "subject": "Feedback on Proposal",
+      "content": "Hi Sam, I’ve gone through your proposal and overall it looks promising. The objectives are clear and the approach is well structured, but I have a few suggestions that could make the narrative even stronger. In particular, it might help to expand the section on success metrics and add a short paragraph about potential risks and mitigations. I’ve added my comments directly in the document for your review. Let’s schedule a time to go over the details together.",
+      "time": "28 Nov 2025",
+      "preview": "Hi Sam, I’ve gone through your proposal and overall it looks promising, but I have a few suggestions that could make the narrative even stronger.",
+      "status": "unread",
+      "read": false
+    },
+    {
+      "id": 10,
+      "sender": "Olivia Martinez",
+      "subject": "Event Invitation",
+      "content": "Hi Sam, you are warmly invited to our annual industry event taking place later this year. It will be a great opportunity to network, attend expert‑led sessions, and learn about the latest trends and tools in the field. We’ll also be sharing a preview of our upcoming product roadmap and hosting a Q&A with the leadership team. Please let us know if you can attend by registering through the link in the invitation. We’d be delighted to see you there.",
+      "time": "20 Nov 2025",
+      "preview": "Hi Sam, you are warmly invited to our annual industry event, a great opportunity to network, attend expert‑led sessions, and learn about the latest trends.",
+      "status": "unread",
+      "read": false
+    },
+    {
+        "id": 11,
+        "sender": "Liam Johnson",
+        "subject": "Weekly Newsletter",
+        "content": "Hello Sam, welcome to this week’s edition of our newsletter. In this issue, we cover the latest industry news, upcoming events, and highlight some success stories from our community. We also have a special feature on productivity tips and tools to help you stay organized and efficient. Don’t forget to check out our blog for in‑depth articles and insights from our experts. As always, we appreciate your feedback and suggestions for future topics.",
+        "time": "15 Nov 2025",
+        "preview": "Hello Sam, welcome to this week’s edition of our newsletter covering the latest industry news, upcoming events, and success stories from our community.",
+        "status": "read",
+        "read": true
+    },
+    {
+        "id": 12,
+        "sender": "Ava Garcia",
+        "subject": "System Maintenance Notification",
+        "content": "Dear Sam, we would like to inform you about a scheduled system maintenance that will take place this weekend. During this time, our services will be temporarily unavailable as we perform necessary updates and improvements to enhance performance and security. The maintenance window is planned from Saturday at 10:00 PM to Sunday at 4:00 AM. We apologize for any inconvenience this may cause and appreciate your understanding. If you have any questions or concerns, please do not hesitate to reach out to our support team.",
+        "time": "10 Nov 2025",
+        "preview": "Dear Sam, we would like to inform you about a scheduled system maintenance this weekend that will temporarily make our services unavailable.",
+        "status": "read",
+        "read": true
+    },{
+        "id": 13,
+        "sender": "Mia Rodriguez",
+        "subject": "New Feature Announcement",
+        "content": "Hi Sam, we are excited to announce the launch of a new feature that we believe will significantly enhance your experience. This feature allows for greater customization and flexibility, enabling you to tailor the platform to better meet your specific needs. We have included a detailed guide on how to use the new feature, along with some best practices to get you started. We encourage you to explore it and provide us with your feedback. Your input is invaluable as we continue to improve our offerings.",
+        "time": "05 Nov 2025",
+        "preview": "Hi Sam, we are excited to announce the launch of a new feature that will enhance your experience with greater customization and flexibility.",
+        "status": "unread",
+        "read": false
+    },
+    {
+        "id": 14,
+        "sender": "William Hernandez",
+        "subject": "Client Meeting Follow-Up",
+        "content": "Hello Sam, I wanted to follow up on our recent client meeting to recap the key points discussed and outline the next steps. We covered several important topics, including project timelines, deliverables, and potential challenges. I have attached the meeting minutes for your reference. Please review them and let me know if there are any additions or corrections needed. Moving forward, we will be focusing on finalizing the project plan and scheduling regular check-ins to ensure everything stays on track.",
+        "time": "01 Nov 2025",
+        "preview": "Hello Sam, I wanted to follow up on our recent client meeting to recap the key points discussed and outline the next steps.",
+        "status": "unread",
+        "read": false
+    }
+  ]
 }
