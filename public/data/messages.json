@@ -5,16 +5,19 @@
     "sender": "Jack Smith", 
     "subject": "New Business Opportunities", 
     "content": "Dear Sam, hope this email finds you well. I wanted to discuss some new business opportunities that have come up recently. Let me know when you are available for a quick call. Looking forward to catching up and exploring these opportunities together. Best regards, Jack", 
-    "time": "Now" 
+    "time": "Now" ,
+    "preview": "Dear Sam, hope this email finds you well. I wanted to discuss some new business opportunities that have come up recently. Let me know when you are available for a quick call. Looking forward to catching up and exploring these opportunities together. Best regards, Jack",
+    "status": "unread",
+    "read": false
 },
-  { "id": 2, "sender": "Sarah Pressth", "subject": "RE: Project Progress", "content": "Hi Sam, I’ve reviewed the latest project progress and everything looks good. We just need to finalize the budget and timeline. Let’s catch up tomorrow to discuss further.", "time": "Yesterday" },
-  { "id": 3, "sender": "Dan Towards", "subject": "Insurance Documents", "content": "Please find the attached LPO for the insurance documents we discussed. Let me know if you need any additional information or if there are any issues with the documents.", "time": "03 Feb 2026" },
-  { "id": 4, "sender": "Christine Woods", "subject": "Updated Request", "content": "I would like to prepare a detailed report on the updated request. Can you provide me with the latest data and any specific requirements you have for the report?", "time": "23 Dec 2025" },
-  { "id": 5, "sender": "Michael Lee", "subject": "Meeting Schedule", "content": "Can we reschedule our meeting to next week? I have a conflict with my current schedule and would like to find a time that works for both of us.", "time": "15 Dec 2025" },
-  { "id": 6, "sender": "Emily Davis", "subject": "Project Update", "content": "The project is progressing well. We have completed the initial phases and are on track for the next milestones. I will keep you updated on any significant developments.", "time": "10 Dec 2025" },
-  { "id": 7, "sender": "David Brown", "subject": "Invoice for Services", "content": "Please find attached the invoice for the services provided. Let me know if you have any questions or if there are any issues with the invoice.", "time": "05 Dec 2025" },
-  { "id": 8, "sender": "Sophia Wilson", "subject": "New Collaboration", "content": "I am interested in collaborating on your upcoming project. I believe my expertise could be a great fit. Let’s discuss how we can work together.", "time": "01 Dec 2025"  },
-  { "id": 9, "sender": "James Taylor", "subject": "Feedback on Proposal", "content": "I have some feedback regarding your proposal. Overall, it looks promising, but I have a few suggestions that could improve it. Let’s schedule a time to go over the details.", "time": "28 Nov 2025" },
-  { "id": 10, "sender": "Olivia Martinez", "subject": "Event Invitation", "content": "You are invited to our annual event. It will be a great opportunity to network and learn about the latest industry trends. Please let us know if you can attend.", "time": "20 Nov 2025" }
+  { "id": 2, "sender": "Sarah Pressth", "subject": "RE: Project Progress", "content": "Hi Sam, I’ve reviewed the latest project progress and everything looks good. We just need to finalize the budget and timeline. Let’s catch up tomorrow to discuss further.", "time": "Yesterday", "status": "read", "read": true },
+  { "id": 3, "sender": "Dan Towards", "subject": "Insurance Documents", "content": "Please find the attached LPO for the insurance documents we discussed. Let me know if you need any additional information or if there are any issues with the documents.", "time": "03 Feb 2026", "status": "read", "read": true },
+  { "id": 4, "sender": "Christine Woods", "subject": "Updated Request", "content": "I would like to prepare a detailed report on the updated request. Can you provide me with the latest data and any specific requirements you have for the report?", "time": "23 Dec 2025", "status": "read", "read": true },
+  { "id": 5, "sender": "Michael Lee", "subject": "Meeting Schedule", "content": "Can we reschedule our meeting to next week? I have a conflict with my current schedule and would like to find a time that works for both of us.", "time": "15 Dec 2025", "status": "read", "read": true },
+  { "id": 6, "sender": "Emily Davis", "subject": "Project Update", "content": "The project is progressing well. We have completed the initial phases and are on track for the next milestones. I will keep you updated on any significant developments.", "time": "10 Dec 2025", "status": "unread", "read": false },
+  { "id": 7, "sender": "David Brown", "subject": "Invoice for Services", "content": "Please find attached the invoice for the services provided. Let me know if you have any questions or if there are any issues with the invoice.", "time": "05 Dec 2025", "status": "unread", "read": false },
+  { "id": 8, "sender": "Sophia Wilson", "subject": "New Collaboration", "content": "I am interested in collaborating on your upcoming project. I believe my expertise could be a great fit. Let’s discuss how we can work together.", "time": "01 Dec 2025", "status": "unread", "read": false },
+  { "id": 9, "sender": "James Taylor", "subject": "Feedback on Proposal", "content": "I have some feedback regarding your proposal. Overall, it looks promising, but I have a few suggestions that could improve it. Let’s schedule a time to go over the details.", "time": "28 Nov 2025", "status": "unread", "read": false },
+  { "id": 10, "sender": "Olivia Martinez", "subject": "Event Invitation", "content": "You are invited to our annual event. It will be a great opportunity to network and learn about the latest industry trends. Please let us know if you can attend.", "time": "20 Nov 2025", "status": "unread", "read": false }
 ]
 }

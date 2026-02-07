@@ -6,6 +6,7 @@ import {
   Avatar, 
   List, 
   ListItem, 
+  ListItemButton,
   ListItemAvatar, 
   ListItemText, 
   Chip, 
@@ -26,19 +27,40 @@ import {
     MailLockOutlined
 } from '@mui/icons-material';
 
-const emails = messagesData.emails;
 
 type MessageType = {
-  id: Number,
-  sender: String,
-  subject: String,
-  content: String,
-  time: String,
+  id: number | string,
+  sender: string,
+  subject: string,
+  content: string,
+  time: string,
+  status: string,
+  read: boolean,
+  preview?: string
 }
-const messages : MessageType[] = messagesData.emails;
 
 const Inbox = () => {
   const [selectedEmail, setSelectedEmail] = React.useState<MessageType | null>(null);
+  const [filter, setFilter] = React.useState('All');
+  const [emailList, setEmailList] = React.useState<MessageType[]>([]);
+
+
+  React.useEffect(() => {
+    if (filter === 'All') {
+      setEmailList(messagesData.emails as MessageType[]);
+    }
+      else if (filter === 'Read') {
+        setEmailList(messagesData.emails.filter(email => email.read) as MessageType[]);
+    } else if (filter === 'Unread') {
+        setEmailList(messagesData.emails.filter(email => !email.read) as MessageType[]);
+    } else if (filter === 'Today') {
+          const todayLabel = 'Now';
+          setEmailList(messagesData.emails.filter(email => email.time === todayLabel) as MessageType[]);
+    }
+
+        }, [filter]);
+
+
 
   const handleEmailClick = (email: MessageType | null) => {
     setSelectedEmail(email);
@@ -79,7 +101,7 @@ const Inbox = () => {
         <Box className="p-4 flex flex-col gap-4">
           <Box className="flex justify-between items-center">
             <Typography variant="h6" className="font-bold text-gray-800">
-              Inbox (4)
+              Inbox ({emailList.length})
             </Typography>
             <IconButton size="small">
               <RadioButtonUnchecked className="text-gray-400" />
@@ -92,11 +114,30 @@ const Inbox = () => {
               label="All" 
               icon={<CheckCircleOutline style={{ fontSize: '16px' }} />} 
               size="small" 
-              className="bg-indigo-100 text-indigo-700 font-medium" 
+              onClick={() => setFilter('All')}
+              className={`font-medium ${filter === 'All' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600'}`}
             />
-            <Chip label="Read" size="small" variant="outlined" className="text-gray-600" />
-            <Chip label="Today" size="small" variant="outlined" className="text-gray-600" />
-            <Chip label="Unread" size="small" variant="outlined" className="text-gray-600" />
+            <Chip 
+              label="Read" 
+              size="small" 
+              variant="outlined" 
+              onClick={() => setFilter('Read')}
+              className={filter === 'Read' ? 'text-indigo-700 border-indigo-200' : 'text-gray-600'} 
+            />
+            <Chip 
+              label="Today" 
+              size="small" 
+              variant="outlined" 
+              onClick={() => setFilter('Today')}
+              className={filter === 'Today' ? 'text-indigo-700 border-indigo-200' : 'text-gray-600'} 
+            />
+            <Chip 
+              label="Unread" 
+              size="small" 
+              variant="outlined" 
+              onClick={() => setFilter('Unread')}
+              className={filter === 'Unread' ? 'text-indigo-700 border-indigo-200' : 'text-gray-600'} 
+            />
             <Typography variant="caption" className="ml-auto cursor-pointer text-indigo-600 font-medium self-center">
               Clear
             </Typography>
@@ -119,14 +160,16 @@ const Inbox = () => {
 
         {/* Email List */}
         <List className="overflow-y-scroll h-[800px] pt-0">
-          {emails.map((email) => (
-            <React.Fragment key={email.id}>
+          {emailList.map((email) => (
+            <React.Fragment key={email.id.toString()}>
               <ListItem 
-                  onClick={() => handleEmailClick(messages.find(msg => msg.id === email.id) || null)} 
                 alignItems="center" 
-                button 
-                className={`hover:bg-indigo-50 transition-colors cursor-pointer px-4 ${!email.read ? 'bg-indigo-50/30' : ''}`}
+                disablePadding
               >
+                <ListItemButton
+                  onClick={() => handleEmailClick(messagesData.emails.find(msg => msg.id === email.id) || null)}
+                  className={`hover:bg-indigo-50 transition-colors cursor-pointer px-4 ${!email.read ? 'bg-indigo-50/30' : ''}`}
+                >
                 <ListItemAvatar>
                   <Avatar 
                     src={`https://i.pravatar.cc/150?u=${email.id}`} 
@@ -158,6 +201,7 @@ const Inbox = () => {
                 {!email.read && (
                   <Box className="ml-2 mt-2 w-2 h-2 bg-indigo-600 rounded-full" />
                 )}
+                </ListItemButton>
               </ListItem>
               <Divider variant="inset" component="li" />
             </React.Fragment>
