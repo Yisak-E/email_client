@@ -1,4 +1,5 @@
 import React from 'react';
+import messagesData from '../../public/data/messages.json';
 import { 
   Box, 
   Typography, 
@@ -25,40 +26,24 @@ import {
     MailLockOutlined
 } from '@mui/icons-material';
 
-// Mock data based on your image
-const emails = [
-  { id: 1, sender: 'Jack Smith', subject: 'New Business Opportunities', preview: 'Dear Sam, hope this email finds you well...', time: 'Now', read: false },
-  { id: 2, sender: 'Sarah Pressth', subject: 'RE: Project Progress', preview: 'Hi Sam, I’ve reviewed the latest...', time: 'Yesterday', read: true },
-  { id: 3, sender: 'Dan Towards', subject: 'Insurance Documents', preview: 'Please find the attached LPO...', time: '03 Feb 2026', read: true },
-  { id: 4, sender: 'Christine Woods', subject: 'Updated Request', preview: 'I would like to prepare a detailed...', time: '23 Dec 2025', read: true },
-  { id: 5, sender: 'Michael Lee', subject: 'Meeting Schedule', preview: 'Can we reschedule our meeting to next week?', time: '15 Dec 2025', read: false },
-  { id: 6, sender: 'Emily Davis', subject: 'Project Update', preview: 'The project is progressing well...', time: '10 Dec 2025', read: true },
-  { id: 7, sender: 'David Brown', subject: 'Invoice for Services', preview: 'Please find attached the invoice...', time: '05 Dec 2025', read: false },
-  { id: 8, sender: 'Sophia Wilson', subject: 'New Collaboration', preview: 'I am interested in collaborating on...', time: '01 Dec 2025', read: true },
-  { id: 9, sender: 'James Taylor', subject: 'Feedback on Proposal', preview: 'I have some feedback regarding your proposal...', time: '28 Nov 2025', read: true },
-  { id: 10, sender: 'Olivia Martinez', subject: 'Event Invitation', preview: 'You are invited to our annual event...', time: '20 Nov 2025', read: false },
-];
+const emails = messagesData.emails;
 
-const messages = [
-  { id: 1, sender: 'Jack Smith', content: 'Dear Sam, hope this email finds you well. I wanted to discuss some new business opportunities that have come up recently. Let me know when you are available for a quick call.', time: 'Now' },
-  { id: 2, sender: 'Sarah Pressth', content: 'Hi Sam, I’ve reviewed the latest project progress and everything looks good. We just need to finalize the budget and timeline. Let’s catch up tomorrow to discuss further.', time: 'Yesterday' },
-  { id: 3, sender: 'Dan Towards', content: 'Please find the attached LPO for the insurance documents we discussed. Let me know if you need any additional information or if there are any issues with the documents.', time: '03 Feb 2026' },
-  { id: 4, sender: 'Christine Woods', content: 'I would like to prepare a detailed report on the updated request. Can you provide me with the latest data and any specific requirements you have for the report?', time: '23 Dec 2025' },
-  { id: 5, sender: 'Michael Lee', content: 'Can we reschedule our meeting to next week? I have a conflict with my current schedule and would like to find a time that works for both of us.', time: '15 Dec 2025' },
-  { id: 6, sender: 'Emily Davis', content: 'The project is progressing well. We have completed the initial phases and are on track for the next milestones. I will keep you updated on any significant developments.', time: '10 Dec 2025' },
-  { id: 7, sender: 'David Brown', content: 'Please find attached the invoice for the services provided. Let me know if you have any questions or if there are any issues with the invoice.', time: '05 Dec 2025' },
-  { id: 8, sender: 'Sophia Wilson', content: 'I am interested in collaborating on your upcoming project. I believe my expertise could be a great fit. Let’s discuss how we can work together.', time: '01 Dec 2025' },
-  { id: 9, sender: 'James Taylor', content: 'I have some feedback regarding your proposal. Overall, it looks promising, but I have a few suggestions that could improve it. Let’s schedule a time to go over the details.', time: '28 Nov 2025' },
-  { id: 10, sender: 'Olivia Martinez', content: 'You are invited to our annual event. It will be a great opportunity to network and learn about the latest industry trends. Please let us know if you can attend.', time: '20 Nov 2025' },
-];
+type MessageType = {
+  id: Number,
+  sender: String,
+  subject: String,
+  content: String,
+  time: String,
+}
+const messages : MessageType[] = messagesData.emails;
 
 const Inbox = () => {
-  const [selectedEmail, setSelectedEmail] = React.useState(null);
+  const [selectedEmail, setSelectedEmail] = React.useState<MessageType | null>(null);
 
-  const handleEmailClick = (email) => {
+  const handleEmailClick = (email: MessageType | null) => {
     setSelectedEmail(email);
   };
-  
+
   return (
     <Box className=" flex justify-between h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">
        <Box className="flex flex-col justify-between  w-16 h-screen bg-gray-100 p-4 border border-gray-900">
@@ -137,6 +122,7 @@ const Inbox = () => {
           {emails.map((email) => (
             <React.Fragment key={email.id}>
               <ListItem 
+                  onClick={() => handleEmailClick(messages.find(msg => msg.id === email.id) || null)} 
                 alignItems="center" 
                 button 
                 className={`hover:bg-indigo-50 transition-colors cursor-pointer px-4 ${!email.read ? 'bg-indigo-50/30' : ''}`}
@@ -182,9 +168,31 @@ const Inbox = () => {
       <Box className="flex-1 p-4" >
         {/* Placeholder for email content view */}
         <Box className="h-full flex flex-col items-center justify-center text-center px-4 bg-gray-300">
-            <IconButton size="large" className="mb-4 w-64 h-64">
-              <MailLockOutlined className="text-blue-500  text-9xl" />
-            </IconButton>
+           {
+            selectedEmail ? (
+              <Box className="bg-white p-6  shadow-md w-full h-full overflow-y-auto">
+                <Typography variant="h5" className="font-bold mb-2">
+                  {selectedEmail.subject}
+                </Typography>
+                <Typography variant="subtitle2" className="text-gray-700 mb-4">
+                  From: {selectedEmail.sender} - {selectedEmail.time}
+                </Typography>
+                 <Box className="mt-4 w-2/3 mx-auto" >
+                  <Typography variant="body1" className="text-gray-800 whitespace-pre-line">
+                    {selectedEmail.content}
+                  </Typography>
+                 </Box>
+              </Box>
+            ) : (
+              <Box className="flex flex-col items-center gap-4">
+                <MailLockOutlined className="text-gray-400" style={{ fontSize: '48px' }} />
+                <Typography variant="h6" className="text-gray-600">
+                  Select an email to view its content
+                </Typography>
+              </Box>
+            )
+
+           } 
         </Box>
       </Box>
     </Box>
