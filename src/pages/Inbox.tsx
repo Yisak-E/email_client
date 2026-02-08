@@ -1,5 +1,5 @@
 import React from 'react';
-import messagesData from '../../public/data/messages.json';
+
 import { 
   Box, 
   Typography, 
@@ -22,48 +22,22 @@ import {
   RadioButtonUnchecked, 
   MailLockOutlined
 } from '@mui/icons-material';
+import { useEmailContext } from '../EmailContext';
+import {type MessageType}  from '../types/MailType';
+import messagesData from "../../public/data/messages.json";
 
 
-type MessageType = {
-  id: number | string,
-  sender: string,
-  subject: string,
-  content: string,
-  time: string,
-  status: string,
-  read: boolean,
-  preview?: string
-}
+
+
 
 const Inbox = () => {
-  const [selectedEmail, setSelectedEmail] = React.useState<MessageType | null>(null);
-  const [filter, setFilter] = React.useState('All');
-  const [emailList, setEmailList] = React.useState<MessageType[]>([]);
-  const [searchTerm, setSearchTerm] = React.useState('');
+ const  {selectedEmail, setSelectedEmail, filter, setFilter, searchTerm, setSearchTerm, emailList, handle} = useEmailContext();
 
 
-  React.useEffect(() => {
-    if (filter === 'All') {
-      setEmailList(messagesData.emails as MessageType[]);
-    }
-      else if (filter === 'Read') {
-        setEmailList(messagesData.emails.filter(email => email.read) as MessageType[]);
-    } else if (filter === 'Unread') {
-        setEmailList(messagesData.emails.filter(email => !email.read) as MessageType[]);
-    } else if (filter === 'Today') {
-          const todayLabel = 'Now';
-          setEmailList(messagesData.emails.filter(email => email.time === todayLabel) as MessageType[]);
-    }
-
-    if (searchTerm) {
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      setEmailList(prevList => prevList.filter(email => email.sender.toLowerCase().includes(lowerSearchTerm) || email.subject.toLowerCase().includes(lowerSearchTerm) || email.content.toLowerCase().includes(lowerSearchTerm)));
-    }
-  }, [filter, searchTerm]);
-
-  const handleEmailClick = (email: MessageType | null) => {
-    setSelectedEmail(email);
-  };
+ const handleEmailClick = (email: MessageType | null) => {
+  setSelectedEmail(email);
+}
+ 
 
   return (
     <Box className=" flex justify-between h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">

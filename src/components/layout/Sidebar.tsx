@@ -1,11 +1,11 @@
 import { Box, IconButton, Avatar } from "@mui/material";
 import { Settings, Person, Create, MailOutline } from "@mui/icons-material";
-import React from "react";
+import { useEmailContext } from "../../EmailContext";
 
 
 
 const Sidebar = () => {
-     const [selectedView, setSelectedView] = React.useState('inbox');
+    const {  setSelectedView } = useEmailContext();
   return (
      <Box className="flex flex-col justify-between  w-16 h-full bg-gray-100 p-4 border border-gray-900">
             {/* Placeholder for potential sidebar icons */}
