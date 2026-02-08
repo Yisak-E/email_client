@@ -1,5 +1,5 @@
 import { Box, IconButton, Avatar } from "@mui/material";
-import { Settings, Person, Create, MailOutline } from "@mui/icons-material";
+import { Settings, Person, Create, MailOutline, SendAndArchive, Send, SendOutlined } from "@mui/icons-material";
 import { useEmailContext } from "../../EmailContext";
 
 
@@ -13,11 +13,11 @@ const Sidebar = () => {
                  <IconButton onClick={() => setSelectedView('newmail')}>
                     <Create className="text-gray-400" />
                 </IconButton>
-                <IconButton size="small" className="mb-4" onClick={() => setSelectedView('inbox')}>
+                <IconButton size="small" className="mb-4" onClick={() => setSelectedView('view')}>
                     <MailOutline className="text-gray-400" />
                 </IconButton>
                 <IconButton onClick={() => setSelectedView('contacts')}>
-                    <Person  className="text-gray-400" />
+                    <Send  className="text-purple-500" />
                 </IconButton>
               
             </Box>

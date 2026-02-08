@@ -31,7 +31,7 @@ export const EmailProvider = ({ children }: EmailProviderProps) => {
   const [selectedEmail, setSelectedEmail] = useState<MessageType | null>(null);
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedView, setSelectedView] = useState("inbox");
+  const [selectedView, setSelectedView] = useState("view");
   const [emailList, setEmailList] = useState<MessageType[]>(
     messagesData.emails as MessageType[]
   );
