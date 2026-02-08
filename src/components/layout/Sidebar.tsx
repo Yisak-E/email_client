@@ -1,0 +1,42 @@
+import { Box, IconButton, Avatar } from "@mui/material";
+import { Settings, Person, Create, MailOutline } from "@mui/icons-material";
+import React from "react";
+
+
+
+const Sidebar = () => {
+     const [selectedView, setSelectedView] = React.useState('inbox');
+  return (
+     <Box className="flex flex-col justify-between  w-16 h-full bg-gray-100 p-4 border border-gray-900">
+            {/* Placeholder for potential sidebar icons */}
+            <Box className="flex flex-col items-center gap-4">
+                 <IconButton onClick={() => setSelectedView('newmail')}>
+                    <Create className="text-gray-400" />
+                </IconButton>
+                <IconButton size="small" className="mb-4" onClick={() => setSelectedView('inbox')}>
+                    <MailOutline className="text-gray-400" />
+                </IconButton>
+                <IconButton onClick={() => setSelectedView('contacts')}>
+                    <Person  className="text-gray-400" />
+                </IconButton>
+              
+            </Box>
+        
+            {/* bottom placeholder */}
+            <Box>
+                <IconButton size="small" className="mt-auto">
+                    {/* settings */}
+                    <Settings className="text-gray-400" />
+                </IconButton>
+                <IconButton size="small" className="mt-4">
+                    {/* profile */}
+                    <Avatar src="https://i.pravatar.cc/150?u=profile" className="w-8 h-8 border-2 border-white shadow-sm" />
+                </IconButton>
+            </Box>
+
+             
+        </Box>
+)
+}
+
+export default Sidebar;

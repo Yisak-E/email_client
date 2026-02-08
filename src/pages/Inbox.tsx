@@ -61,16 +61,12 @@ const Inbox = () => {
     }
   }, [filter, searchTerm]);
 
-
-
   const handleEmailClick = (email: MessageType | null) => {
     setSelectedEmail(email);
   };
 
   return (
     <Box className=" flex justify-between h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">
-       
-      
       <Box className="w-1/4 flex flex-col">
         
         {/* Header Section */}
@@ -191,7 +187,26 @@ const Inbox = () => {
         </List>
       </Box>
 
-      <Box className="flex-1 p-4" >
+      {/* Right-hand email content view */}
+      <EmailView
+        selectedEmail={selectedEmail}
+        setSelectedEmail={setSelectedEmail}
+      />
+    </Box>
+  );
+};
+
+export default Inbox;
+
+type EmailViewProps = {
+  selectedEmail: MessageType | null;
+  setSelectedEmail: (email: MessageType | null) => void;
+};
+
+const EmailView = ({ selectedEmail }: EmailViewProps) => {
+    
+  return (
+     <Box className="flex-1 p-4" >
         {/* Placeholder for email content view */}
         <Box className="h-full flex flex-col items-center justify-center text-center px-4 bg-gray-300">
            {
@@ -221,8 +236,5 @@ const Inbox = () => {
            } 
         </Box>
       </Box>
-    </Box>
   );
 };
-
-export default Inbox;
