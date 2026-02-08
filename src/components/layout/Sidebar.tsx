@@ -16,7 +16,7 @@ const Sidebar = () => {
                 <IconButton size="small" className="mb-4" onClick={() => setSelectedView('view')}>
                     <MailOutline className="text-gray-400" />
                 </IconButton>
-                <IconButton onClick={() => setSelectedView('contacts')}>
+                <IconButton onClick={() => setSelectedView('sent')}>
                     <Send  className="text-purple-500" />
                 </IconButton>
               

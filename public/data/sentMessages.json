@@ -1,0 +1,59 @@
+{
+  "emails": [
+    {
+      "id": 101,
+      "sender": "You",
+      "to": "jack.smith@example.com",
+      "subject": "Re: New Business Opportunities",
+      "content": "Hi Jack, thanks for sharing these opportunities. I’ve reviewed the summaries and I agree that options 2 and 3 look the most aligned with our current roadmap. Let’s schedule a call tomorrow afternoon to discuss resourcing and potential timelines. Best, Sam",
+      "time": "Now",
+      "preview": "Hi Jack, thanks for sharing these opportunities. I’ve reviewed the summaries and I agree that options 2 and 3 look the most aligned...",
+      "status": "sent",
+      "read": true
+    },
+    {
+      "id": 102,
+      "sender": "You",
+      "to": "sarah.pressth@example.com",
+      "subject": "Project Progress Follow-up",
+      "content": "Hi Sarah, appreciate the detailed review. I’ll incorporate your feedback into the next iteration and expand the section on risks and mitigations. I’ll share the updated draft by Thursday so we can lock the launch date. Thanks again for the thoughtful comments.",
+      "time": "Yesterday",
+      "preview": "Hi Sarah, appreciate the detailed review. I’ll incorporate your feedback into the next iteration and expand the section on risks...",
+      "status": "sent",
+      "read": true
+    },
+    {
+      "id": 103,
+      "sender": "You",
+      "to": "christine.woods@example.com",
+      "subject": "Re: Updated Request Details",
+      "content": "Hi Christine, thanks for offering to prepare the report. I’ve attached the latest data exports and added a short description of the decisions this report should support. Let’s plan a quick sync early next week to align on the scope before you dive in.",
+      "time": "03 Feb 2026",
+      "preview": "Hi Christine, thanks for offering to prepare the report. I’ve attached the latest data exports and added a short description...",
+      "status": "sent",
+      "read": true
+    },
+    {
+      "id": 104,
+      "sender": "You",
+      "to": "michael.lee@example.com",
+      "subject": "Meeting Reschedule Options",
+      "content": "Hi Michael, no problem on rescheduling. I’m available next week on Tuesday and Thursday between 2–4 PM. Let me know which slot works best for you and I’ll send over an updated invite. We can keep it virtual to make things easier.",
+      "time": "23 Dec 2025",
+      "preview": "Hi Michael, no problem on rescheduling. I’m available next week on Tuesday and Thursday between 2–4 PM...",
+      "status": "sent",
+      "read": true
+    },
+    {
+      "id": 105,
+      "sender": "You",
+      "to": "emily.davis@example.com",
+      "subject": "Re: Project Update",
+      "content": "Hi Emily, thanks for the update. Great to hear that the architecture has been validated and that testing is underway. Please flag any risks that might affect the main milestones and let’s review them in our weekly stand-up. Keep up the good work.",
+      "time": "15 Dec 2025",
+      "preview": "Hi Emily, thanks for the update. Great to hear that the architecture has been validated and that testing is underway...",
+      "status": "sent",
+      "read": true
+    }
+  ]
+}

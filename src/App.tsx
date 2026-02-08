@@ -18,6 +18,7 @@ import {
 } from '@mui/icons-material';
 import EmailView from './pages/EmailView';
 import MailList from './components/layout/MailList';
+import SentMails from './pages/SentMails';
 
 function App() {
   const { selectedView } = useEmailContext();
@@ -70,6 +71,7 @@ function App() {
         <Box className="flex-1 h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">
           {selectedView === 'view' && <EmailView />}
           {selectedView === 'newmail' && <NewMail />}
+          { selectedView === 'sent' && <SentMails /> }
         </Box>
       
       </Box>

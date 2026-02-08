@@ -25,7 +25,7 @@ import type { MessageType } from '../../types/MailType';
 import { useEmailContext } from '../../EmailContext';
 
 const MailList = () => {
-     const  { setSelectedEmail, filter, setFilter, searchTerm, setSearchTerm, emailList} = useEmailContext();
+     const  { setSelectedView, setSelectedEmail, filter, setFilter, searchTerm, setSearchTerm, emailList} = useEmailContext();
       
       
        const handleEmailClick = (email: MessageType | null) => {
@@ -110,7 +110,10 @@ const MailList = () => {
                 disablePadding
               >
                 <ListItemButton
-                  onClick={() => handleEmailClick(email)}
+                  onClick={() =>{
+                    handleEmailClick(email);
+                    setSelectedView('view');
+                  }}
                   className={`hover:bg-indigo-50 transition-colors cursor-pointer px-4 ${!email.read ? 'bg-indigo-50/30' : ''}`}
                 >
                 <ListItemAvatar>
