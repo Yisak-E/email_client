@@ -26,8 +26,8 @@ const NewMail = () => {
   };
 
   return (
-    <Box className="h-full w-full flex justify-center items-start bg-slate-100 p-4">
-      <Box className="w-full max-w-4xl h-[80vh] bg-white rounded-lg shadow-md flex flex-col overflow-hidden">
+    <Box className="h-full w-full flex justify-center items-start p-4 ">
+      <Box className="w-full  h-full bg-white rounded-lg shadow-md flex flex-col overflow-hidden">
         {/* Header */}
         <Box className="flex items-center justify-between px-4 py-3 border-b bg-slate-50">
           <Typography variant="subtitle1" className="font-semibold">
