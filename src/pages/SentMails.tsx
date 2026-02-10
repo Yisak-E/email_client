@@ -16,12 +16,11 @@ import {
 import { Search, MoreVert, RadioButtonUnchecked } from "@mui/icons-material";
 import type { MessageType } from "../types/MailType";
 import { useEmailContext } from "../EmailContext";
-import sentMessagesData from "../../public/data/sentMessages.json";
 
 const SentMails = () => {
-    const { setSelectedEmail, setSelectedView, filter, setFilter, searchTerm, setSearchTerm } = useEmailContext();
+    const { setSelectedEmail, setSelectedView, filter, setFilter, searchTerm, setSearchTerm, sentList } = useEmailContext();
 
-    let sentEmails = sentMessagesData.emails as MessageType[];
+    let sentEmails = sentList;
 
     if (filter === "Read") {
         sentEmails = sentEmails.filter((email) => email.read);

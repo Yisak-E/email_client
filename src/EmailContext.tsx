@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import messagesData from "../public/data/messages.json";
+import sentMessagesData from "../public/data/sentMessages.json";
 import  { type MessageType } from "./types/MailType";
 
 type EmailContextType = {
@@ -21,6 +22,8 @@ type EmailContextType = {
   setMailbox: (mailbox: "inbox" | "sent" | "drafts" | "trash" | "spam") => void;
   emailList: MessageType[];
   setEmailList: (emails: MessageType[]) => void;
+  sentList: MessageType[];
+  setSentList: (emails: MessageType[]) => void;
 };
 
 const EmailContext = createContext<EmailContextType | undefined>(undefined);
@@ -39,6 +42,9 @@ export const EmailProvider = ({ children }: EmailProviderProps) => {
   >("inbox");
   const [emailList, setEmailList] = useState<MessageType[]>(
     messagesData.emails as MessageType[]
+  );
+  const [sentList, setSentList] = useState<MessageType[]>(
+    sentMessagesData.emails as MessageType[]
   );
 
   useEffect(() => {
@@ -79,6 +85,8 @@ export const EmailProvider = ({ children }: EmailProviderProps) => {
     setMailbox,
     emailList,
     setEmailList,
+    sentList,
+    setSentList,
   };
 
   return <EmailContext.Provider value={value}>{children}</EmailContext.Provider>;

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Box, Button, TextField, Typography, Divider } from "@mui/material";
+import { useEmailContext } from "../EmailContext";
+import type { MessageType } from "../types/MailType";
 
 const NewMail = () => {
   const [to, setTo] = useState("");
@@ -10,9 +12,42 @@ const NewMail = () => {
   const [showCc, setShowCc] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
 
+  const { setSelectedView, setSelectedEmail, setMailbox, sentList, setSentList } = useEmailContext();
+
   const handleSend = () => {
-    // Hook this up to your send logic / API
-    console.log("Sending email", { to, cc, bcc, subject, body });
+    if (!to || !subject || !body) {
+      // basic guard; in real app show validation
+      return;
+    }
+
+    const newEmail: MessageType = {
+      id: Date.now(),
+      sender: "You",
+      to,
+      subject,
+      content: body,
+      time: "Now",
+      preview: body.slice(0, 120),
+      status: "sent",
+      read: true,
+    };
+
+    const updatedSent = [newEmail, ...sentList];
+    setSentList(updatedSent);
+
+    // Show the newly sent email in the reader and switch to Sent mailbox
+    setSelectedEmail(newEmail);
+    setMailbox("sent");
+    setSelectedView("view");
+
+    // Clear form after sending
+    setTo("");
+    setCc("");
+    setBcc("");
+    setSubject("");
+    setBody("");
+    setShowCc(false);
+    setShowBcc(false);
   };
 
   const handleDiscard = () => {

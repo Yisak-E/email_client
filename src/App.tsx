@@ -25,7 +25,7 @@ import Trash from './pages/Trash';
 import Spam from './pages/Spam';
 
 function App() {
-  const { selectedView, mailbox } = useEmailContext();
+  const { selectedView, mailbox, searchTerm, setSearchTerm } = useEmailContext();
  
   return (
 
@@ -39,12 +39,15 @@ function App() {
         {/* global search bar */}
         <Paper
           component="form"
+          onSubmit={(e) => e.preventDefault()}
           className="flex items-center w-[600px] w-max-xl mt-2 bg-gray-200 rounded-full px-4 py-1 focus-within:ring-2 focus-within:ring-purple-500"
         >
           <InputBase
             className="flex-1"
             placeholder="Global Search"
             inputProps={{ 'aria-label': 'search emails' }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <IconButton type="submit" className="p-1">
             <Search className="text-gray-500" />
