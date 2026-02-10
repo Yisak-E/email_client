@@ -1,0 +1,24 @@
+{
+  "emails": [
+    {
+      "id": 301,
+      "sender": "Newsletter",
+      "subject": "Old Promotion",
+      "content": "This is an old promotional email that was deleted.",
+      "time": "03 Feb 2026",
+      "preview": "This is an old promotional email that was deleted...",
+      "status": "trash",
+      "read": true
+    },
+    {
+      "id": 302,
+      "sender": "System",
+      "subject": "Unused Notification",
+      "content": "You deleted this notification from your inbox.",
+      "time": "23 Dec 2025",
+      "preview": "You deleted this notification from your inbox...",
+      "status": "trash",
+      "read": false
+    }
+  ]
+}

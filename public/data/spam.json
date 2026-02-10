@@ -1,0 +1,24 @@
+{
+  "emails": [
+    {
+      "id": 401,
+      "sender": "Unknown Sender",
+      "subject": "You won a prize!",
+      "content": "Congratulations! You have won a prize. Click the suspicious link to claim it.",
+      "time": "Now",
+      "preview": "Congratulations! You have won a prize...",
+      "status": "spam",
+      "read": false
+    },
+    {
+      "id": 402,
+      "sender": "Random Company",
+      "subject": "Limited-time offer",
+      "content": "This is a spam promotional email that has been filtered to your spam folder.",
+      "time": "01 Feb 2026",
+      "preview": "This is a spam promotional email that has been filtered...",
+      "status": "spam",
+      "read": true
+    }
+  ]
+}

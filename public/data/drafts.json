@@ -1,0 +1,26 @@
+{
+  "emails": [
+    {
+      "id": 201,
+      "sender": "You",
+      "to": "alex.jones@example.com",
+      "subject": "Draft: Product Launch Notes",
+      "content": "This is a draft email with notes about the upcoming product launch. Add more details about milestones, stakeholders, and risks before sending.",
+      "time": "Now",
+      "preview": "This is a draft email with notes about the upcoming product launch...",
+      "status": "draft",
+      "read": false
+    },
+    {
+      "id": 202,
+      "sender": "You",
+      "to": "team@example.com",
+      "subject": "Draft: Weekly Status Update",
+      "content": "Hi team, this is a draft for the weekly status update. Please fill in progress for each workstream before sending.",
+      "time": "Yesterday",
+      "preview": "Hi team, this is a draft for the weekly status update...",
+      "status": "draft",
+      "read": true
+    }
+  ]
+}
