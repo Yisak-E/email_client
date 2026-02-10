@@ -7,4 +7,5 @@ export type MessageType = {
   status: string;
   read: boolean;
   preview?: string;
+  to?: string;
 };

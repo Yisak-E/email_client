@@ -16,8 +16,16 @@ const EmailView = () => {
                 <Typography variant="h5" className="font-bold mb-2">
                   {selectedEmail.subject}
                 </Typography>
-                <Typography variant="subtitle2" className="text-gray-700 mb-4">
-                  From: {selectedEmail.sender} - {selectedEmail.time}
+                <Typography variant="subtitle2" className="text-gray-700 mb-1">
+                  From: {selectedEmail.sender}
+                </Typography>
+                {selectedEmail.to && (
+                  <Typography variant="subtitle2" className="text-gray-700 mb-1">
+                    To: {selectedEmail.to}
+                  </Typography>
+                )}
+                <Typography variant="subtitle2" className="text-gray-500 mb-4">
+                  {selectedEmail.time}
                 </Typography>
                  <Box className="mt-4 w-2/3 mx-auto" >
                   <Typography variant="body1" className="text-gray-800 whitespace-pre-line">
