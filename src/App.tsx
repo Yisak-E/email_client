@@ -19,9 +19,10 @@ import {
 import EmailView from './pages/EmailView';
 import MailList from './components/layout/MailList';
 import SentMails from './pages/SentMails';
+import CalendarView from './pages/CalendarView';
 
 function App() {
-  const { selectedView } = useEmailContext();
+  const { selectedView, mailbox } = useEmailContext();
  
   return (
 
@@ -64,14 +65,15 @@ function App() {
       <Box className="flex flex-row h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">
         <Sidebar />
         
-        {/* side view */}
-        <MailList/>
+        {/* side view: inbox or sent list */}
+        {mailbox === 'inbox' && <MailList />}
+        {mailbox === 'sent' && <SentMails />}
       
         {/* content view */}
         <Box className="flex-1 h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">
           {selectedView === 'view' && <EmailView />}
           {selectedView === 'newmail' && <NewMail />}
-          { selectedView === 'sent' && <SentMails /> }
+          {selectedView === 'calendar' && <CalendarView />}
         </Box>
       
       </Box>
