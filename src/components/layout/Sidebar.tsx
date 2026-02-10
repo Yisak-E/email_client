@@ -8,7 +8,7 @@ const Sidebar = () => {
      <Box className="flex flex-col justify-between  w-16 h-full bg-gray-100 p-4 border border-gray-900">
             {/* Placeholder for potential sidebar icons */}
             <Box className="flex flex-col items-center gap-4">
-                                 <IconButton onClick={() => setSelectedView('newmail')}>
+                                <IconButton onClick={() => setSelectedView('newmail')}>
                     <Create className="text-gray-400" />
                 </IconButton>
                                 <IconButton
@@ -29,13 +29,28 @@ const Sidebar = () => {
                                 >
                                     <Send className="text-purple-500" />
                                 </IconButton>
-                                <IconButton onClick={() => setSelectedView('drafts')}>
+                                <IconButton
+                                    onClick={() => {
+                                        setMailbox('drafts');
+                                        setSelectedView('view');
+                                    }}
+                                >
                                     <Drafts className="text-gray-400" />
                                 </IconButton>
-                                <IconButton onClick={() => setSelectedView('trash')}>
+                                <IconButton
+                                    onClick={() => {
+                                        setMailbox('trash');
+                                        setSelectedView('view');
+                                    }}
+                                >
                                     <DeleteOutline className="text-gray-400" />
                                 </IconButton>
-                                <IconButton onClick={() => setSelectedView('spam')}>
+                                <IconButton
+                                    onClick={() => {
+                                        setMailbox('spam');
+                                        setSelectedView('view');
+                                    }}
+                                >
                                     <Report className="text-gray-400" />
                                 </IconButton>
                                 <IconButton onClick={() => setSelectedView('calendar')}>

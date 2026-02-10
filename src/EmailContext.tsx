@@ -17,8 +17,8 @@ type EmailContextType = {
   setSearchTerm: (term: string) => void;
   selectedView: string;
   setSelectedView: (view: string) => void;
-  mailbox: "inbox" | "sent";
-  setMailbox: (mailbox: "inbox" | "sent") => void;
+  mailbox: "inbox" | "sent" | "drafts" | "trash" | "spam";
+  setMailbox: (mailbox: "inbox" | "sent" | "drafts" | "trash" | "spam") => void;
   emailList: MessageType[];
   setEmailList: (emails: MessageType[]) => void;
 };
@@ -34,7 +34,9 @@ export const EmailProvider = ({ children }: EmailProviderProps) => {
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedView, setSelectedView] = useState("view");
-  const [mailbox, setMailbox] = useState<"inbox" | "sent">("inbox");
+  const [mailbox, setMailbox] = useState<
+    "inbox" | "sent" | "drafts" | "trash" | "spam"
+  >("inbox");
   const [emailList, setEmailList] = useState<MessageType[]>(
     messagesData.emails as MessageType[]
   );

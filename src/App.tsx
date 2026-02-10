@@ -68,17 +68,17 @@ function App() {
       <Box className="flex flex-row h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">
         <Sidebar />
         
-        {/* side view: inbox or sent list */}
+        {/* side view: current mailbox list */}
         {mailbox === 'inbox' && <MailList />}
         {mailbox === 'sent' && <SentMails />}
+        {mailbox === 'drafts' && <Drafts />}
+        {mailbox === 'trash' && <Trash />}
+        {mailbox === 'spam' && <Spam />}
       
         {/* content view */}
         <Box className="flex-1 h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">
           {selectedView === 'view' && <EmailView />}
           {selectedView === 'newmail' && <NewMail />}
-          {selectedView === 'drafts' && <Drafts />}
-          {selectedView === 'trash' && <Trash />}
-          {selectedView === 'spam' && <Spam />}
           {selectedView === 'calendar' && <CalendarView />}
         </Box>
       
