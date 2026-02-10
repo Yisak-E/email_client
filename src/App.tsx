@@ -20,6 +20,9 @@ import EmailView from './pages/EmailView';
 import MailList from './components/layout/MailList';
 import SentMails from './pages/SentMails';
 import CalendarView from './pages/CalendarView';
+import Drafts from './pages/Drafts';
+import Trash from './pages/Trash';
+import Spam from './pages/Spam';
 
 function App() {
   const { selectedView, mailbox } = useEmailContext();
@@ -73,6 +76,9 @@ function App() {
         <Box className="flex-1 h-full w-full bg-white rounded-l-3xl overflow-hidden border-r border-gray-100 ">
           {selectedView === 'view' && <EmailView />}
           {selectedView === 'newmail' && <NewMail />}
+          {selectedView === 'drafts' && <Drafts />}
+          {selectedView === 'trash' && <Trash />}
+          {selectedView === 'spam' && <Spam />}
           {selectedView === 'calendar' && <CalendarView />}
         </Box>
       

@@ -1,5 +1,5 @@
 import { Box, IconButton, Avatar } from "@mui/material";
-import { Settings, Create, MailOutline, Send, CalendarMonth } from "@mui/icons-material";
+import { Settings, Create, MailOutline, Send, CalendarMonth, Drafts, DeleteOutline, Report } from "@mui/icons-material";
 import { useEmailContext } from "../../EmailContext";
 
 const Sidebar = () => {
@@ -27,10 +27,19 @@ const Sidebar = () => {
                                         setSelectedView('view');
                                     }}
                                 >
-                    <Send  className="text-purple-500" />
-                </IconButton>
+                                    <Send className="text-purple-500" />
+                                </IconButton>
+                                <IconButton onClick={() => setSelectedView('drafts')}>
+                                    <Drafts className="text-gray-400" />
+                                </IconButton>
+                                <IconButton onClick={() => setSelectedView('trash')}>
+                                    <DeleteOutline className="text-gray-400" />
+                                </IconButton>
+                                <IconButton onClick={() => setSelectedView('spam')}>
+                                    <Report className="text-gray-400" />
+                                </IconButton>
                                 <IconButton onClick={() => setSelectedView('calendar')}>
-                                        <CalendarMonth className="text-gray-400" />
+                                    <CalendarMonth className="text-gray-400" />
                                 </IconButton>
               
             </Box>
