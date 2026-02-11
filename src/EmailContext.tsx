@@ -5,8 +5,8 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import messagesData from "../public/data/messages.json";
-import sentMessagesData from "../public/data/sentMessages.json";
+import messagesData from "./data/messages.json";
+import sentMessagesData from "./data/sentMessages.json";
 import  { type MessageType } from "./types/MailType";
 
 type EmailContextType = {

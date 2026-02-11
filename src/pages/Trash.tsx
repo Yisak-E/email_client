@@ -16,7 +16,7 @@ import {
 import { Search, MoreVert, RadioButtonUnchecked } from "@mui/icons-material";
 import type { MessageType } from "../types/MailType";
 import { useEmailContext } from "../EmailContext";
-import trashData from "../../public/data/trash.json";
+import trashData from "../data/trash.json";
 
 const Trash = () => {
   const {

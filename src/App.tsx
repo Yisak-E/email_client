@@ -24,6 +24,7 @@ import Drafts from './pages/Drafts';
 import Trash from './pages/Trash';
 import Spam from './pages/Spam';
 
+
 function App() {
   const { selectedView, mailbox, searchTerm, setSearchTerm } = useEmailContext();
  

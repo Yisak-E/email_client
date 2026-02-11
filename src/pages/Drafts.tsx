@@ -1,22 +1,23 @@
 import React from "react";
 import {
-  Box,
-  Typography,
-  Avatar,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemAvatar,
-  ListItemText,
-  Divider,
-  IconButton,
-  InputBase,
-  Paper,
-} from "@mui/material";
+  M3Box,
+  M3Typography,
+  M3Avatar,
+  M3List,
+  M3ListItem,
+  M3ListItemAvatar,
+  M3ListItemText,
+  M3Divider,
+  M3IconButton,
+  M3Paper,
+  M3Button,
+} from "m3r"; 
+
+
 import { Search, MoreVert, RadioButtonUnchecked } from "@mui/icons-material";
 import type { MessageType } from "../types/MailType";
 import { useEmailContext } from "../EmailContext";
-import draftsData from "../../public/data/drafts.json";
+import draftsData from "../data/drafts.json";
 
 const Drafts = () => {
   const {
@@ -30,6 +31,7 @@ const Drafts = () => {
 
   let draftEmails = draftsData.emails as MessageType[];
 
+  // Logic remains the same
   if (filter === "Read") {
     draftEmails = draftEmails.filter((email) => email.read);
   } else if (filter === "Unread") {
@@ -55,152 +57,119 @@ const Drafts = () => {
   };
 
   return (
-    <Box className="w-1/4 flex flex-col">
-      {/* Header Section */}
-      <Box className="p-4 flex flex-col gap-4">
-        <Box className="flex justify-between items-center">
-          <Typography variant="h6" className="font-bold text-gray-800">
+    <M3Box style={{ width: "25%", display: "flex", flexDirection: "column" }}>
+      <M3Box style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <M3Box style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <M3Typography variant="headlineSmall" style={{ fontWeight: "700", color: "#1f2937" }}>
             Drafts ({draftEmails.length})
-          </Typography>
-          <IconButton size="small">
-            <RadioButtonUnchecked className="text-gray-400" />
-          </IconButton>
-        </Box>
+          </M3Typography>
+          <M3IconButton>
+            <RadioButtonUnchecked style={{ color: "#9ca3af" }} />
+          </M3IconButton>
+        </M3Box>
 
-        {/* Filter Chips */}
-        <Box className="flex gap-2">
-          <Paper
+        <M3Box style={{ display: "flex", gap: "8px" }}>
+          <M3Paper
             elevation={0}
-            className="flex items-center space-x-2 bg-transparent shadow-none"
+            style={{ display: "flex", alignItems: "center", gap: "8px", backgroundColor: "transparent", boxShadow: "none" }}
           >
-            <button
-              className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                filter === "All"
-                  ? "bg-indigo-100 text-indigo-700 border-indigo-200"
-                  : "text-gray-600 border-gray-200"
-              }`}
-              onClick={() => setFilter("All")}
-            >
-              All
-            </button>
-            <button
-              className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                filter === "Read"
-                  ? "bg-indigo-100 text-indigo-700 border-indigo-200"
-                  : "text-gray-600 border-gray-200"
-              }`}
-              onClick={() => setFilter("Read")}
-            >
-              Read
-            </button>
-            <button
-              className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                filter === "Today"
-                  ? "bg-indigo-100 text-indigo-700 border-indigo-200"
-                  : "text-gray-600 border-gray-200"
-              }`}
-              onClick={() => setFilter("Today")}
-            >
-              Today
-            </button>
-            <button
-              className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                filter === "Unread"
-                  ? "bg-indigo-100 text-indigo-700 border-indigo-200"
-                  : "text-gray-600 border-gray-200"
-              }`}
-              onClick={() => setFilter("Unread")}
-            >
-              Unread
-            </button>
-          </Paper>
-          <Typography
-            variant="caption"
-            className="ml-auto cursor-pointer text-indigo-600 font-medium self-center"
+            {["All", "Read", "Today", "Unread"].map((f) => (
+              <button
+                key={f}
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: "9999px",
+                  fontSize: "0.75rem",
+                  fontWeight: "500",
+                  border: "1px solid",
+                  cursor: "pointer",
+                  backgroundColor: filter === f ? "#e0e7ff" : "transparent",
+                  color: filter === f ? "#4338ca" : "#4b5563",
+                  borderColor: filter === f ? "#c7d2fe" : "#e5e7eb",
+                }}
+                onClick={() => setFilter(f)}
+              >
+                {f}
+              </button>
+            ))}
+          </M3Paper>
+          <M3Typography
+            variant="labelMedium"
+            style={{ marginLeft: "auto", cursor: "pointer", color: "#4f46e5", fontWeight: "500", alignSelf: "center" }}
             onClick={() => setSearchTerm("")}
           >
             Clear
-          </Typography>
-        </Box>
-      </Box>
+          </M3Typography>
+        </M3Box>
+      </M3Box>
 
-      <Divider />
+      <M3Divider />
 
-      {/* Search Bar */}
-      <Box className="px-4 py-2">
-        <Paper
+      <M3Box style={{ padding: "8px 16px" }}>
+        <M3Paper
           elevation={0}
-          className="flex items-center px-3 py-1 bg-gray-100 rounded-full"
+          style={{ display: "flex", alignItems: "center", padding: "4px 12px", backgroundColor: "#f3f4f6", borderRadius: "9999px" }}
         >
-          <Search className="text-gray-400 mr-2" />
-          <InputBase
-            placeholder="Search Drafts"
-            className="text-sm w-full"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <MoreVert className="text-gray-400" />
-        </Paper>
-      </Box>
+          <Search style={{ color: "#9ca3af", marginRight: "8px" }} />
+         
+          <MoreVert style={{ color: "#9ca3af" }} />
+        </M3Paper>
+      </M3Box>
 
-      {/* Drafts Email List */}
-      <List className="overflow-y-scroll h-[800px] pt-0">
+      <M3List style={{ overflowY: "auto", height: "800px", paddingTop: "0" }}>
         {draftEmails.map((email) => (
           <React.Fragment key={email.id.toString()}>
-            <ListItem alignItems="center" disablePadding>
-              <ListItemButton
+            <M3ListItem style={{ padding: 0 }}>
+              <M3Button
                 onClick={() => handleEmailClick(email)}
-                className="hover:bg-indigo-50 transition-colors cursor-pointer px-4"
+                style={{ padding: "12px 16px", transition: "background-color 0.2s" }}
               >
-                <ListItemAvatar>
-                  <Avatar
+                <M3ListItemAvatar>
+                  <M3Avatar
                     src={`https://i.pravatar.cc/150?u=draft-${email.id}`}
-                    className="w-12 h-12 border-2 border-white shadow-sm"
+                    style={{ width: "48px", height: "48px", border: "2px solid white", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
                   />
-                </ListItemAvatar>
-                <ListItemText
+                </M3ListItemAvatar>
+                <M3ListItemText
                   primary={
-                    <Box className="flex justify-between items-center">
-                      <Typography
-                        variant="subtitle2"
-                        className="font-bold text-gray-900"
-                      >
+                    <M3Box style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <M3Typography variant="headlineSmall" style={{ fontWeight: "700", color: "#111827" }}>
                         {email.to ?? "Recipient"}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        className="text-gray-500"
-                      >
+                      </M3Typography>
+                      <M3Typography variant="labelSmall" style={{ color: "#6b7280" }}>
                         {email.time}
-                      </Typography>
-                    </Box>
+                      </M3Typography>
+                    </M3Box>
                   }
                   secondary={
-                    <Box>
-                      <Typography
-                        variant="caption"
-                        className="block font-semibold text-gray-700"
-                      >
+                    <M3Box style={{ marginTop: "4px" }}>
+                      <M3Typography variant="bodyMedium" style={{ display: "block", fontWeight: "600", color: "#374151" }}>
                         {email.subject}
-                      </Typography>
+                      </M3Typography>
                       {email.preview && (
-                        <Typography
-                          variant="caption"
-                          className="text-gray-500 line-clamp-1"
+                        <M3Typography
+                          variant="bodySmall"
+                          style={{
+                            color: "#6b7280",
+                            overflow: "hidden",
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: 1,
+                          }}
                         >
                           {email.preview}
-                        </Typography>
+                        </M3Typography>
                       )}
-                    </Box>
+                    </M3Box>
                   }
                 />
-              </ListItemButton>
-            </ListItem>
-            <Divider variant="inset" component="li" />
+              </M3Button>
+            </M3ListItem>
+            <M3Divider />
           </React.Fragment>
         ))}
-      </List>
-    </Box>
+      </M3List>
+    </M3Box>
   );
 };
 

@@ -16,7 +16,7 @@ import {
 import { Search, MoreVert, RadioButtonUnchecked } from "@mui/icons-material";
 import type { MessageType } from "../types/MailType";
 import { useEmailContext } from "../EmailContext";
-import spamData from "../../public/data/spam.json";
+import spamData from "../data/spam.json";
 
 const Spam = () => {
   const {
