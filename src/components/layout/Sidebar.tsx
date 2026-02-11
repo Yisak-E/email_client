@@ -1,79 +1,76 @@
-import { Box, IconButton, Avatar } from "@mui/material";
-import { Settings, Create, MailOutline, Send, CalendarMonth, Drafts, DeleteOutline, Report } from "@mui/icons-material";
+import { M3Avatar, M3Box, M3Typography } from "m3r";
+import { useEffect, useState } from "react";
+import type { MessageType } from "../../types/MailType";
 import { useEmailContext } from "../../EmailContext";
+import { List, ListItem, ListItemText } from "@mui/material";
 
 const Sidebar = () => {
-    const {  setSelectedView, setMailbox } = useEmailContext();
-  return (
-     <Box className="flex flex-col justify-between  w-16 h-full bg-gray-100 p-4 border border-gray-900">
-            {/* Placeholder for potential sidebar icons */}
-            <Box className="flex flex-col items-center gap-4">
-                                <IconButton onClick={() => setSelectedView('newmail')}>
-                    <Create className="text-gray-400" />
-                </IconButton>
-                                <IconButton
-                                    size="small"
-                                    className="mb-4"
-                                    onClick={() => {
-                                        setMailbox('inbox');
-                                        setSelectedView('view');
-                                    }}
-                                >
-                    <MailOutline className="text-gray-400" />
-                </IconButton>
-                                <IconButton
-                                    onClick={() => {
-                                        setMailbox('sent');
-                                        setSelectedView('view');
-                                    }}
-                                >
-                                    <Send className="text-purple-500" />
-                                </IconButton>
-                                <IconButton
-                                    onClick={() => {
-                                        setMailbox('drafts');
-                                        setSelectedView('view');
-                                    }}
-                                >
-                                    <Drafts className="text-gray-400" />
-                                </IconButton>
-                                <IconButton
-                                    onClick={() => {
-                                        setMailbox('trash');
-                                        setSelectedView('view');
-                                    }}
-                                >
-                                    <DeleteOutline className="text-gray-400" />
-                                </IconButton>
-                                <IconButton
-                                    onClick={() => {
-                                        setMailbox('spam');
-                                        setSelectedView('view');
-                                    }}
-                                >
-                                    <Report className="text-gray-400" />
-                                </IconButton>
-                                <IconButton onClick={() => setSelectedView('calendar')}>
-                                    <CalendarMonth className="text-gray-400" />
-                                </IconButton>
-              
-            </Box>
-        
-            {/* bottom placeholder */}
-            <Box>
-                <IconButton size="small" className="mt-auto">
-                    {/* settings */}
-                    <Settings className="text-gray-400" />
-                </IconButton>
-                <IconButton size="small" className="mt-4">
-                    {/* profile */}
-                    <Avatar src="https://i.pravatar.cc/150?u=profile" className="w-8 h-8 border-2 border-white shadow-sm" />
-                </IconButton>
-            </Box>
+  const {selectedPage, inboxMessageList, sentMessageList, draftMessageList, spamMessageList, trashMessageList} = useEmailContext();
+  const [mailList, setMailList] = useState<MessageType[]>([]);
 
-             
-        </Box>
-)
-}
+  useEffect(() => {
+    switch (selectedPage) {
+      case "inbox":
+        setMailList(inboxMessageList);
+        break;
+      case "sent":
+        setMailList(sentMessageList);
+        break;
+      case "drafts":
+        setMailList(draftMessageList || []);
+        break;
+      case "spam":
+        setMailList(spamMessageList || []);
+        break;
+      case "trash":
+        setMailList(trashMessageList || []);
+        break;
+      default:
+        setMailList(inboxMessageList);
+    }
+  }, [selectedPage, inboxMessageList, sentMessageList, draftMessageList, spamMessageList, trashMessageList]);
+
+    
+  return (
+    <M3Box color="secondary" textAlign="center" m={0} p={0} borderRadius={4} boxShadow={3} >
+       <M3Typography variant="h6" >{selectedPage.toUpperCase() +` (${mailList.length})`}</M3Typography>
+
+       {/* filters */}
+       {
+        selectedPage === "inbox" && (
+          <M3Box display="flex" justifyContent="center" gap={2} mb={2}>
+            <M3Typography variant="inherit" color="textSecondary">All</M3Typography>
+            <M3Typography variant="body1" color="textSecondary">Unread</M3Typography>
+            <M3Typography variant="body2" color="textSecondary">Starred</M3Typography>
+          </M3Box>
+        )
+       }
+
+      <List sx={{ width: '100%',height: 'calc(100vh - 180px)', bgcolor: 'background.paper' }} className="overflow-y-scroll">
+        {mailList.map((mail) => (
+          <ListItem key={mail.id} alignItems="flex-start" sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
+            <M3Box component="span" sx={{ display: 'block', fontWeight: 'bold', color: 'text.primary' }}>
+              <M3Avatar alt={mail.id.toString()} src={`https://i.pravatar.cc/150?u=${mail.id}`} className="w-8 h-8 border-2 border-white shadow-sm mr-4" />
+            </M3Box>
+            <ListItemText
+              primary={mail.subject}
+              secondary={
+                <>
+                  <M3Box component="span" sx={{ display: 'block', color: 'text.primary' }}>
+                    {mail.sender}
+                  </M3Box>
+                  <M3Box component="span" sx={{ display: 'block', color: 'text.secondary' }}>
+                    {mail.time}
+                  </M3Box>
+                </>
+              }
+            />
+          </ListItem>
+        ))}
+      </List>
+       
+      
+    </M3Box>
+  )};
 
 export default Sidebar;

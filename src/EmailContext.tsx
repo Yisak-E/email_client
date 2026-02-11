@@ -1,103 +1,72 @@
 import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  type ReactNode,
+    createContext,
+    useContext,
+    useState,
+    useEffect,
 } from "react";
-import messagesData from "./data/messages.json";
-import sentMessagesData from "./data/sentMessages.json";
-import  { type MessageType } from "./types/MailType";
+
+
+import inboxMessages from "./data/inboxMessages.json";
+import sentMessages from "./data/sentMessages.json";
+import trashMessages from "./data/trashMessages.json";
+import spamMessages from "./data/spamMessages.json";
+import draftMessages from "./data/draftMessages.json";
+import type { MessageType } from "./types/MailType";
+
 
 type EmailContextType = {
-  selectedEmail: MessageType | null;
-  setSelectedEmail: (email: MessageType | null) => void;
-  filter: string;
-  setFilter: (filter: string) => void;
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
-  selectedView: string;
-  setSelectedView: (view: string) => void;
-  mailbox: "inbox" | "sent" | "drafts" | "trash" | "spam";
-  setMailbox: (mailbox: "inbox" | "sent" | "drafts" | "trash" | "spam") => void;
-  emailList: MessageType[];
-  setEmailList: (emails: MessageType[]) => void;
-  sentList: MessageType[];
-  setSentList: (emails: MessageType[]) => void;
+    inboxMessageList: MessageType[];
+    sentMessageList: MessageType[];
+    draftMessageList?: MessageType[];
+    spamMessageList?: MessageType[];
+    trashMessageList?: MessageType[];
+    showSubNav: boolean;
+    setShowSubNav: (show: boolean) => void;
+    selectedPage: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash";
+    setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash") => void;
+    selectedEmail?: MessageType;
+    setSelectedEmail?: (email: MessageType) => void;
 };
 
-const EmailContext = createContext<EmailContextType | undefined>(undefined);
+const EmailContext = createContext<EmailContextType>({
+    inboxMessageList: [],
+    sentMessageList: [],
+    draftMessageList: [],
+    spamMessageList: [],
+    trashMessageList: [],
+    showSubNav: false,
+    setShowSubNav: () => { },
+    selectedPage: "inbox",
+    setSelectedPage: () => { },
+    selectedEmail: undefined,
+    setSelectedEmail: () => { },
+    
+});
 
-type EmailProviderProps = {
-  children: ReactNode;
+
+export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [inboxMessageList, setInboxMessages] = useState<MessageType[]>([]);
+    const [sentMessageList, setSentMessages] = useState<MessageType[]>([]);
+    const [draftMessageList, setDraftMessages] = useState<MessageType[]>([]);
+    const [spamMessageList, setSpamMessages] = useState<MessageType[]>([]);
+    const [trashMessageList, setTrashMessages] = useState<MessageType[]>([]);
+    const [showSubNav, setShowSubNav] = useState(false);
+    const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash">("inbox");
+    const [selectedEmail, setSelectedEmail] = useState<MessageType | undefined>(undefined);
+
+    useEffect(() => {
+        setInboxMessages(inboxMessages.emails as MessageType[]);
+        setSentMessages(sentMessages.emails as MessageType[]);
+        setDraftMessages(draftMessages.emails as MessageType[]);
+        setSpamMessages(spamMessages.emails as MessageType[]);
+        setTrashMessages(trashMessages.emails as MessageType[]);
+    }, []);
+
+    return (
+        <EmailContext.Provider value={{ inboxMessageList, sentMessageList, draftMessageList, spamMessageList, trashMessageList, showSubNav, setShowSubNav, selectedPage, setSelectedPage, selectedEmail, setSelectedEmail }}>
+            {children}
+        </EmailContext.Provider>
+    );
 };
 
-export const EmailProvider = ({ children }: EmailProviderProps) => {
-  const [selectedEmail, setSelectedEmail] = useState<MessageType | null>(null);
-  const [filter, setFilter] = useState("All");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedView, setSelectedView] = useState("view");
-  const [mailbox, setMailbox] = useState<
-    "inbox" | "sent" | "drafts" | "trash" | "spam"
-  >("inbox");
-  const [emailList, setEmailList] = useState<MessageType[]>(
-    messagesData.emails as MessageType[]
-  );
-  const [sentList, setSentList] = useState<MessageType[]>(
-    sentMessagesData.emails as MessageType[]
-  );
-
-  useEffect(() => {
-    let baseList = messagesData.emails as MessageType[];
-
-    if (filter === "Read") {
-      baseList = baseList.filter((email) => email.read);
-    } else if (filter === "Unread") {
-      baseList = baseList.filter((email) => !email.read);
-    } else if (filter === "Today") {
-      const todayLabel = "Now";
-      baseList = baseList.filter((email) => email.time === todayLabel);
-    }
-
-    if (searchTerm) {
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      baseList = baseList.filter(
-        (email) =>
-          email.sender.toLowerCase().includes(lowerSearchTerm) ||
-          email.subject.toLowerCase().includes(lowerSearchTerm) ||
-          email.content.toLowerCase().includes(lowerSearchTerm)
-      );
-    }
-
-    setEmailList(baseList);
-  }, [filter, searchTerm]);
-
-  const value: EmailContextType = {
-    selectedEmail,
-    setSelectedEmail,
-    filter,
-    setFilter,
-    searchTerm,
-    setSearchTerm,
-    selectedView,
-    setSelectedView,
-    mailbox,
-    setMailbox,
-    emailList,
-    setEmailList,
-    sentList,
-    setSentList,
-  };
-
-  return <EmailContext.Provider value={value}>{children}</EmailContext.Provider>;
-};
-
-export const useEmailContext = () => {
-  const ctx = useContext(EmailContext);
-  if (!ctx) {
-    throw new Error("useEmailContext must be used within an EmailProvider");
-  }
-  return ctx;
-};
-
-export default EmailContext;
+export const useEmailContext = () => useContext(EmailContext);

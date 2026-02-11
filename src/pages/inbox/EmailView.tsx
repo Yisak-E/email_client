@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { MailLockOutlined } from '@mui/icons-material';
-import { useEmailContext } from '../EmailContext';
+import { useEmailContext } from '../../EmailContext';
 
 
 const EmailView = () => {
