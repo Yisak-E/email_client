@@ -24,6 +24,8 @@ type EmailContextType = {
     setShowSubNav: (show: boolean) => void;
     selectedPage: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash";
     setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash") => void;
+    selectedEmail?: MessageType;
+    setSelectedEmail?: (email: MessageType) => void;
 };
 
 const EmailContext = createContext<EmailContextType>({
@@ -36,6 +38,8 @@ const EmailContext = createContext<EmailContextType>({
     setShowSubNav: () => { },
     selectedPage: "inbox",
     setSelectedPage: () => { },
+    selectedEmail: undefined,
+    setSelectedEmail: () => { },
     
 });
 
@@ -48,7 +52,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [trashMessageList, setTrashMessages] = useState<MessageType[]>([]);
     const [showSubNav, setShowSubNav] = useState(false);
     const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash">("inbox");
-
+    const [selectedEmail, setSelectedEmail] = useState<MessageType | undefined>(undefined);
 
     useEffect(() => {
         setInboxMessages(inboxMessages.emails as MessageType[]);
@@ -59,7 +63,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, []);
 
     return (
-        <EmailContext.Provider value={{ inboxMessageList, sentMessageList, draftMessageList, spamMessageList, trashMessageList, showSubNav, setShowSubNav, selectedPage, setSelectedPage }}>
+        <EmailContext.Provider value={{ inboxMessageList, sentMessageList, draftMessageList, spamMessageList, trashMessageList, showSubNav, setShowSubNav, selectedPage, setSelectedPage, selectedEmail, setSelectedEmail }}>
             {children}
         </EmailContext.Provider>
     );

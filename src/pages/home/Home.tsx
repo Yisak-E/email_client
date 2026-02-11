@@ -15,14 +15,14 @@ export default function Home() {
         )}
 
       {/*side bar and main content will be contained here */}
-      <M3Box  color=""  display="grid" gridTemplateColumns="1fr 3fr" gap={2} m={0} p={0}  boxShadow={3} height={ showSubNav ? 'calc(100vh - 162px)' : 'calc(100vh - 90px)'} >
+      <M3Box  color=""  display="flex" flexDirection={"row"}  gap={2} m={0} p={0}  boxShadow={3} height={ showSubNav ? 'calc(100vh - 162px)' : 'calc(100vh - 90px)'} >
         {/* side bar goes here */}
-        <M3Box  color="secondary"  textAlign="center" m={0} p={2}  boxShadow={3} height={showSubNav ? 'calc(100vh - 162px)' : 'calc(100vh - 90px)'} >
-          <Sidebar mailList={[]} />
+        <M3Box  color="secondary"  textAlign="center" m={0} p={2}  boxShadow={3} height={showSubNav ? 'calc(100vh - 162px)' : 'calc(100vh - 90px)'} width={"450px"} >
+          <Sidebar />
         </M3Box>
 
         {/* main content goes here */}
-        <M3Box  color="secondary"  textAlign="center" m={0} p={2}  boxShadow={3} height={showSubNav ? 'calc(100vh - 162px)' : 'calc(100vh - 90px)'} >
+        <M3Box  color="secondary"  textAlign="center" m={0} p={2}  boxShadow={3} height={showSubNav ? 'calc(100vh - 162px)' : 'calc(100vh - 90px)'} width={"calc(100% - 450px)"} >
           Main Content
         </M3Box>
       </M3Box>
