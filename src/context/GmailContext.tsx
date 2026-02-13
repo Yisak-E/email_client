@@ -6,7 +6,7 @@ import {
   getEmail,
 } from "../api/api";
 
-type GmailContextType = {
+export type GmailContextType = {
   isAuthenticated: boolean;
   messages: any[];
   login: () => void;
@@ -76,7 +76,7 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
   )
 }
 
-export const useGmail = () => {
+export const useGmail = (): GmailContextType => {
   const ctx = useContext(GmailContext);
   if (!ctx) {
     throw new Error("useGmail must be used inside GmailProvider");

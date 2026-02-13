@@ -1,6 +1,6 @@
 import { M3Stack, M3FAB, M3Box, M3IconButton, M3Button } from "m3r";
 import { MdOutlineEmail, MdLogin } from "react-icons/md";
-import { useGmail } from "../../context/GmailContext";
+import { useGmail } from "../../context/GmailContext.tsx";
 
 export default function LeftMostSideBar() {
   const { isAuthenticated, login } = useGmail();

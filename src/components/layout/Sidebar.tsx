@@ -2,24 +2,46 @@ import { M3Avatar, M3Box } from "m3r";
 import { useEffect, useState } from "react";
 import type { MessageType } from "../../types/MailType";
 import { useEmailContext } from "../../EmailContext";
-import { useGmail } from "../../context/GmailContext";
+import { useGmail } from "../../context/GmailContext.tsx";
 import { List, ListItem, ListItemText, Typography } from "@mui/material";
 
 const Sidebar = () => {
   const {selectedPage, setSelectedEmail} = useEmailContext();
-  const { messages: gmailMessages, isAuthenticated } = useGmail();
+  const { messages: gmailMessages, isAuthenticated, getEmailById, loadMoreEmails } = useGmail();
   const [mailList, setMailList] = useState<MessageType[]>([]);
+
+  // Helper to decode base64
+  const decodeBase64 = (str: string): string => {
+    try {
+      return decodeURIComponent(atob(str).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    } catch (e) {
+      return str;
+    }
+  };
 
   // Convert Gmail API messages to MessageType format
   const convertGmailToMessage = (gmailMsg: any): MessageType => {
     const headers = gmailMsg.payload?.headers || [];
     const getHeader = (name: string) => headers.find((h: any) => h.name === name)?.value || "";
     
+    // Extract email body
+    let emailBody = "";
+    if (gmailMsg.payload?.parts) {
+      // For multipart emails, find the text part
+      const textPart = gmailMsg.payload.parts.find((part: any) => part.mimeType === "text/plain");
+      if (textPart && textPart.body?.data) {
+        emailBody = decodeBase64(textPart.body.data.replace(/\-/g, '+').replace(/_/g, '/'));
+      }
+    } else if (gmailMsg.payload?.body?.data) {
+      // For simple emails
+      emailBody = decodeBase64(gmailMsg.payload.body.data.replace(/\-/g, '+').replace(/_/g, '/'));
+    }
+    
     return {
       id: gmailMsg.id,
       sender: getHeader("From"),
       subject: getHeader("Subject") || "(No Subject)",
-      content: gmailMsg.snippet || "",
+      content: emailBody || gmailMsg.snippet || "",
       time: getHeader("Date"),
       status: "new",
       read: !gmailMsg.labelIds?.includes("UNREAD"),
@@ -67,10 +89,37 @@ const Sidebar = () => {
           mailList.map((mail: MessageType) => (
             <ListItem 
                 key={mail.id}
-                onClick={() => {
+                onClick={async () => {
                    if(mail.id && setSelectedEmail) {
-                    setSelectedEmail(mail);
-                    mail.read = true;
+                    // Fetch full email content
+                    const fullEmail = await getEmailById(mail.id as string);
+                    if (fullEmail) {
+                      const headers = fullEmail.payload?.headers || [];
+                      const getHeader = (name: string) => headers.find((h: any) => h.name === name)?.value || "";
+                      
+                      // Extract email body
+                      let emailBody = "";
+                      if (fullEmail.payload?.parts) {
+                        const textPart = fullEmail.payload.parts.find((part: any) => part.mimeType === "text/plain");
+                        if (textPart && textPart.body?.data) {
+                          emailBody = decodeBase64(textPart.body.data.replace(/\-/g, '+').replace(/_/g, '/'));
+                        }
+                      } else if (fullEmail.payload?.body?.data) {
+                        emailBody = decodeBase64(fullEmail.payload.body.data.replace(/\-/g, '+').replace(/_/g, '/'));
+                      }
+                      
+                      const enrichedEmail: MessageType = {
+                        ...mail,
+                        content: emailBody || mail.content,
+                        sender: getHeader("From") || mail.sender,
+                        subject: getHeader("Subject") || mail.subject,
+                        to: getHeader("To") || mail.to,
+                        time: getHeader("Date") || mail.time,
+                      };
+                      
+                      setSelectedEmail(enrichedEmail);
+                      enrichedEmail.read = true;
+                    }
                    }
                 }}
                 alignItems="flex-start" sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
@@ -109,8 +158,27 @@ const Sidebar = () => {
           )
         )}
       </List>
-       
       
+      {/* Load More Button */}
+      {isAuthenticated && mailList.length > 0 && (
+        <M3Box p={2} textAlign="center">
+          <button 
+            onClick={loadMoreEmails}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#2196F3",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "500"
+            }}
+          >
+            Load More Emails
+          </button>
+        </M3Box>
+      )}
     </M3Box>
   )};
 
