@@ -12,6 +12,7 @@ type GmailContextType = {
   login: () => void;
   refreshEmails: () => Promise<void>;
   getEmailById: (id: string) => Promise<any>;
+  loadMoreEmails: () => Promise<void>;
 };
 
 const GmailContext = createContext<GmailContextType | null>(null);
@@ -20,6 +21,7 @@ const GmailContext = createContext<GmailContextType | null>(null);
 export default function GmailProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
+  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   useEffect(() => {
     loadGapiClient().catch((err) => console.error("GAPI load error:", err));
   }, []);
@@ -32,10 +34,21 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
   };
   const refreshEmails = async () => {
     try {
-      const msgs = await listEmails(20);
-      setMessages(msgs);
+      const result = await listEmails(100, null);
+      setMessages(result.messages);
+      setNextPageToken(result.nextPageToken);
     } catch (err) {
       console.error("Failed to fetch emails:", err);
+    }
+  };
+  const loadMoreEmails = async () => {
+    try {
+      if (!nextPageToken) return;
+      const result = await listEmails(100, nextPageToken);
+      setMessages(prev => [...prev, ...result.messages]);
+      setNextPageToken(result.nextPageToken);
+    } catch (err) {
+      console.error("Failed to load more emails:", err);
     }
   };
   const getEmailById = async (id: string) => {
@@ -55,6 +68,7 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
         login,
         refreshEmails,
         getEmailById,
+        loadMoreEmails,
       }}
     >
       {children}

@@ -9,8 +9,6 @@ import LeftMostSideBar from "./components/layout/LeftMostSideBar";
 function App() {
   return (
    <M3Box  color="background" display="flex" flexDirection={"row"}  maxHeight="100vh" p={0} m={0} border="1px solid black" borderColor="divider">
-      
-
        <M3Box color="secondary" display={"flex"} flexDirection={"column"} alignItems={"center"} textAlign="center" m={0}  p={0} width={64} boxShadow={3} height={"100vh"} >
          {/* side bar left most  */}
          <LeftMostSideBar />

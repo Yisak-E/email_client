@@ -4,13 +4,13 @@ import './index.css';
 import App from './App.tsx';
 import { EmailProvider } from './EmailContext';
 import { M3Provider } from "m3r";
-import { GmailProvider } from './context/GmailContext.ts';
+import GmailProvider from './context/GmailContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <EmailProvider>
       <GmailProvider>
-        <M3Provider themeColor="blue" themeMode="light">
+        <M3Provider themeColor="#2196F3" themeMode="light">
           <App />
         </M3Provider>
       </GmailProvider>
