@@ -1,6 +1,5 @@
 
-import { M3Avatar, M3Box, M3Paper} from "m3r";
-import { EmailProvider } from "./EmailContext";
+import { M3Avatar, M3Box} from "m3r";
 import Home from "./pages/home/Home";
 import {  } from "@mui/material";
 import { Person, Settings,  } from "@mui/icons-material";
@@ -9,25 +8,31 @@ import LeftMostSideBar from "./components/layout/LeftMostSideBar";
 
 function App() {
   return (
-   <M3Box  color="background" display="flex" flexDirection={"column"}  maxHeight="100vh" p={0} m={0} border="1px solid black" borderColor="divider">
-      {/* nav bar top most */}
+   <M3Box  color="background" display="flex" flexDirection={"row"}  maxHeight="100vh" p={0} m={0} border="1px solid black" borderColor="divider">
+      
+
+       <M3Box color="secondary" display={"flex"} flexDirection={"column"} alignItems={"center"} textAlign="center" m={0}  p={0} width={64} boxShadow={3} height={"100vh"} >
+         {/* side bar left most  */}
+         <LeftMostSideBar />
+      </M3Box>
+     <M3Box display="flex" flexDirection={"column"} flex={1}  m={0} p={0} boxShadow={3} height={"100vh"} >
+     {/* nav bar top most */}
       <M3Box color="primary"   textAlign="center" m={0}  p={2} height={90}  boxShadow={3} >
         <M3Box color="secondary"  display={"flex"} flexDirection={"row"} alignItems={"center"} justifyContent={"space-between"} p={0}  >
           {/* logo */}
-          <M3Box color="primary" fontSize={24} fontWeight="bold">
-            MyMail
+          <M3Box color="secondary container" fontSize={24} fontWeight="bold">
+            NanoVoltz
           </M3Box>
           {/* global search */}
           <M3Box component="form"
             sx={{ display: "flex", alignItems: "center", mt: 2 }}
           >
-            <M3Box color="primary" fontSize={16} mr={1}>
+            <M3Box color="secondary container" bgcolor={"teri"} fontSize={16} mr={1}>
               Search:
             </M3Box>
             <M3Box
               component="input"
-              type="text"
-              placeholder="Search emails..."
+              
               sx={{
                 flex: 1,
                 p: 1,
@@ -39,26 +44,14 @@ function App() {
           </M3Box>
           <M3Box  display={"flex"} flexDirection={"row"} alignItems={"center"} justifyContent={"space-between"} p={0} borderRadius={4} boxShadow={3} >
             {/* user profile or settings */}
-            <M3Box color="primary" fontSize={16} mr={2}>
+            <M3Box color="primary" fontSize={16} mr={2} display="flex" flexDirection={"column"} alignItems="center" gap={1} >
               <M3Avatar alt="User Avatar" src="/static/images/avatar/1.jpg" sx={{ width: 40, height: 40 }}>
                  <Person /> 
               </M3Avatar>
             </M3Box>
-            <M3Box color="primary" fontSize={16} mr={2}>
-              <M3Avatar alt="Settings Avatar" src="/static/images/avatar/1.jpg" sx={{ width: 40, height: 40 }}>
-                 <Settings /> 
-              </M3Avatar>
-            </M3Box>
-          </M3Box>
-        
-        </M3Box>
+  <M3Box color="primary" fontSize={16} mr={2} display="flex" flexDirection={"column"} alignItems="center" gap={1} > <M3Avatar alt="Settings Avatar" src="/static/images/avatar/1.jpg" sx={{ width: 40, height: 40 }}> <Settings /> </M3Avatar> </M3Box> </M3Box> </M3Box>
       </M3Box>
-     <M3Box display="flex" flex={1}>
-      <M3Box color="secondary"  textAlign="center" m={0}  p={0} width={40} boxShadow={3} >
-         {/* side bar left most  */}
-         <LeftMostSideBar />
-      </M3Box>
-      <M3Box color="background"  textAlign="center" m={0}  p={0} flex={1} boxShadow={3} >
+      <M3Box color="background"  textAlign="center" m={0}  p={0} flex={1} boxShadow={3} width="100%" height={"calc(100vh - 90px)"} >
        <Home/>
       </M3Box>
 

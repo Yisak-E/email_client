@@ -1,22 +1,23 @@
-import { Box, Typography } from '@mui/material';
-import { MailLockOutlined } from '@mui/icons-material';
+import {  MailOutlined } from '@mui/icons-material';
 import { useEmailContext } from '../../EmailContext';
+import { M3Box } from 'm3r';
+import { Typography } from '@mui/material';
 
 
 const EmailView = () => {
   const {selectedEmail} = useEmailContext();
     
   return (
-     <Box className="flex-1 p-4 h-full" >
+     <M3Box className="flex-1 p-0 h-full" >
         {/* Placeholder for email content view */}
-        <Box className="h-full flex flex-col items-center justify-center text-center px-4 bg-gray-300">
+        <M3Box className="h-full flex flex-col items-center justify-center text-center px-4 bg-gray-300">
            {
             selectedEmail ? (
-              <Box className="bg-white p-6  shadow-md w-full h-full overflow-y-auto">
+              <M3Box className="bg-white p-6  shadow-md w-full h-full overflow-y-auto">
                 <Typography variant="h5" className="font-bold mb-2">
                   {selectedEmail.subject}
                 </Typography>
-                <Typography variant="subtitle2" className="text-gray-700 mb-1">
+                <Typography variant="h6" className="text-gray-700 mb-1">
                   From: {selectedEmail.sender}
                 </Typography>
                 {selectedEmail.to && (
@@ -27,24 +28,24 @@ const EmailView = () => {
                 <Typography variant="subtitle2" className="text-gray-500 mb-4">
                   {selectedEmail.time}
                 </Typography>
-                 <Box className="mt-4 w-2/3 mx-auto" >
+                 <M3Box className="mt-4 w-2/3 mx-auto" >
                   <Typography variant="body1" className="text-gray-800 whitespace-pre-line">
                     {selectedEmail.content}
                   </Typography>
-                 </Box>
-              </Box>
+                 </M3Box>
+              </M3Box>
             ) : (
-              <Box className="flex flex-col items-center gap-4">
-                <MailLockOutlined className="text-gray-400" style={{ fontSize: '48px' }} />
+              <M3Box className="flex flex-col items-center gap-4">
+                <MailOutlined className="text-purple-400" style={{ fontSize: '400px' }} />
                 <Typography variant="h6" className="text-gray-600">
                   Select an email to view its content
                 </Typography>
-              </Box>
+              </M3Box>
             )
 
            } 
-        </Box>
-      </Box>
+        </M3Box>
+      </M3Box>
   );
 };
 
