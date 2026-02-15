@@ -1,4 +1,4 @@
-import { M3Avatar, M3Box, M3Typography, M3List, M3ListItem, M3Chip } from "m3r";
+import { M3Avatar, M3Box, M3Typography, M3Chip } from "m3r";
 import { useEffect, useState } from "react";
 import type { MessageType } from "../../types/MailType";
 import { useEmailContext } from "../../EmailContext";
@@ -119,88 +119,142 @@ const Sidebar = () => {
   };
 
   return (
-    <M3Box className="list-container">
-      <M3Typography variant="headlineSmall" display="block" className="mb-4 px-4">
-        {!isAuthenticated ? "Sign in to see emails" : `Inbox (${mailList.length})`}
-      </M3Typography>
+    <M3Box 
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        maxHeight: '700px',
+        width: '100%',
+        maxWidth: '700px',
+        overflow: 'hidden',
+        backgroundColor: '#FAF8FF'
+      }}
+    >
+      {/* Header */}
+      <M3Box sx={{ px: 2, py: 2, flexShrink: 0 }}>
+        <M3Typography variant="headlineSmall" display="block">
+          {!isAuthenticated ? "Sign in to see emails" : `Inbox (${mailList.length})`}
+        </M3Typography>
+      </M3Box>
 
+      {/* Authentication Message */}
       {!isAuthenticated && (
-        <M3Box p={2} textAlign="center">
+        <M3Box sx={{ px: 2, py: 2, textAlign: 'center', flexShrink: 0 }}>
           <M3Typography variant="bodySmall" className="text-gray-600">
             Please sign in with your Google account to view your Gmail inbox.
           </M3Typography>
         </M3Box>
       )}
 
+      {/* Filters - Horizontal Scroll */}
       {isAuthenticated && selectedPage === "inbox" && mailList.length > 0 && (
-        <M3Box className="list-filter-container mb-4 px-4 flex flex-wrap gap-2">
+        <M3Box 
+          sx={{ 
+            px: 2, 
+            py: 1,
+            flexShrink: 0,
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            gap: 1,
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            '&::-webkit-scrollbar': {
+              height: '4px'
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'transparent'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: '#CCCCCC',
+              borderRadius: '2px'
+            }
+          }}
+        >
           <M3Chip
             label="All"
             onClick={() => setFilterType("all")}
             variant={(filterType === "all" ? "filled" : "outlined") as any}
-            className="cursor-pointer"
+            sx={{ flexShrink: 0, cursor: 'pointer' }}
           />
           <M3Chip
             label="Read"
             onClick={() => setFilterType("read")}
             variant={(filterType === "read" ? "filled" : "outlined") as any}
-            className="cursor-pointer"
+            sx={{ flexShrink: 0, cursor: 'pointer' }}
           />
           <M3Chip
             label="Unread"
             onClick={() => setFilterType("unread")}
             variant={(filterType === "unread" ? "filled" : "outlined") as any}
-            className="cursor-pointer"
+            sx={{ flexShrink: 0, cursor: 'pointer' }}
           />
           <M3Chip
             label="Starred"
             onClick={() => setFilterType("starred")}
             variant={(filterType === "starred" ? "filled" : "outlined") as any}
-            className="cursor-pointer"
+            sx={{ flexShrink: 0, cursor: 'pointer' }}
           />
           <M3Chip
             label="Clear"
             onClick={() => setFilterType("all")}
             variant="outlined"
-            className="cursor-pointer"
+            sx={{ flexShrink: 0, cursor: 'pointer' }}
           />
         </M3Box>
       )}
 
-      <M3List className="list-view" sx={{ 
-        maxHeight: 'calc(100vh - 300px)', 
-        overflowY: 'auto',
-        px: 2,
-        flex: 1
-      }}>
+      {/* Email List - Scrollable Container */}
+      <M3Box 
+        sx={{
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          '&::-webkit-scrollbar': {
+            width: '6px'
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent'
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#CCCCCC',
+            borderRadius: '3px',
+            '&:hover': {
+              background: '#999999'
+            }
+          }
+        }}
+      >
         {filteredEmails.length > 0 ? (
           filteredEmails.map((mail: MessageType) => (
-            <M3ListItem 
+            <M3Box
               key={mail.id}
               onClick={() => handleEmailClick(mail)}
               sx={{
                 display: 'flex',
                 alignItems: 'flex-start',
-                gap: 2,
-                py: 2,
+                gap: 1.5,
+                py: 1.5,
                 px: 2,
-                mb: 1,
-                borderRadius: '8px',
+                borderBottom: '1px solid #E8E7EF',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                border: `1px solid ${mail.read ? '#e5e7eb' : '#dbe1ff'}`,
-                backgroundColor: mail.read ? '#ffffff' : '#f0f3ff',
+                backgroundColor: mail.read ? '#FAF8FF' : '#F0F3FF',
                 '&:hover': {
-                  backgroundColor: mail.read ? '#f9fafb' : '#e8ebff',
-                  boxShadow: '0 1px 3px rgba(74, 92, 146, 0.12)',
+                  backgroundColor: mail.read ? '#F5F3FF' : '#E8EBFF',
+                  borderLeft: '3px solid #4A5C92',
+                  paddingLeft: 'calc(1rem - 3px)'
                 }
               }}
-              className="responsive-email-item"
             >
               <M3Avatar 
                 alt={mail.sender} 
                 src={getAvatarUrl(mail.sender)} 
-                sx={{ width: 40, height: 40, flexShrink: 0, mt: 0.5 }}
+                sx={{ width: 40, height: 40, flexShrink: 0, mt: 0.25 }}
               />
               <M3Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 <M3Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
@@ -234,7 +288,8 @@ const Sidebar = () => {
                       sx={{
                         color: '#757680',
                         whiteSpace: 'nowrap',
-                        fontSize: '0.75rem'
+                        fontSize: '0.75rem',
+                        minWidth: 'fit-content'
                       }}
                     >
                       {mail.time ? new Date(mail.time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ""}
@@ -260,27 +315,28 @@ const Sidebar = () => {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
-                    display: { xs: 'none', sm: 'block' }
+                    fontSize: '0.75rem'
                   }}
                 >
                   {mail.preview || mail.content?.substring(0, 50)}
                 </M3Typography>
               </M3Box>
-            </M3ListItem>
+            </M3Box>
           ))
         ) : (
           isAuthenticated && (
-            <M3Box p={2} textAlign="center">
+            <M3Box sx={{ p: 2, textAlign: 'center', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <M3Typography variant="bodySmall" className="text-gray-600">
                 {filterType !== "all" ? "No emails match this filter" : "No emails found"}
               </M3Typography>
             </M3Box>
           )
         )}
-      </M3List>
+      </M3Box>
 
+      {/* Load More Button */}
       {isAuthenticated && mailList.length > 0 && (
-        <M3Box p={2} textAlign="center" sx={{ borderTop: '1px solid #e5e7eb' }}>
+        <M3Box sx={{ p: 2, borderTop: '1px solid #E8E7EF', flexShrink: 0 }}>
           <button 
             onClick={loadMoreEmails}
             style={{

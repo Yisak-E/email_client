@@ -3,7 +3,7 @@
 .main-container {
   display: flex;
 width: 1920px;
-height: 1080px;
+height: 680px;
 padding: 15px;
 align-items: center;
 gap: 15px;
@@ -124,7 +124,7 @@ gap: 4px;
 
 .content-container{
 display: flex;
-height: 979px;
+height: 679px;
 align-items: flex-start;
 gap: 15px;
 align-self: stretch;
@@ -132,11 +132,14 @@ align-self: stretch;
 
 .list-container {
     display: flex;
-width: 450px;
+width: 100%;
+max-width: 400px;
 flex-direction: column;
 align-items: center;
 gap: 15px;
 align-self: stretch;
+height: 100%;
+max-height: 700px;
 }
 
 .list-filter-container{
