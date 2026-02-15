@@ -135,3 +135,16 @@ export async function getEmail(messageId: string) {
 
   return response.result;
 }
+
+/* ---------------------------
+   Fetch User Profile
+---------------------------- */
+export async function getUserProfile() {
+  if (!accessToken) throw new Error("User not authenticated");
+
+  const response = await window.gapi.client.gmail.users.getProfile({
+    userId: "me",
+  });
+
+  return response.result;
+}

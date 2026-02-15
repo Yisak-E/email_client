@@ -4,12 +4,23 @@ import {
   initGoogleAuth,
   listEmails,
   getEmail,
+  getUserProfile,
 } from "../api/api";
+
+export type UserProfile = {
+  email: string;
+  name?: string;
+  picture?: string;
+  messagesTotal?: number;
+  messagesUnread?: number;
+};
 
 export type GmailContextType = {
   isAuthenticated: boolean;
   messages: any[];
+  userProfile: UserProfile | null;
   login: () => void;
+  logout: () => void;
   refreshEmails: () => Promise<void>;
   getEmailById: (id: string) => Promise<any>;
   loadMoreEmails: () => Promise<void>;
@@ -22,16 +33,39 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
   useEffect(() => {
     loadGapiClient().catch((err) => console.error("GAPI load error:", err));
   }, []);
 
   const login = () => {
     initGoogleAuth(async () => {
-      setIsAuthenticated(true);
-      await refreshEmails();
+      try {
+        // Fetch user profile after authentication
+        const profile = await getUserProfile();
+        setUserProfile({
+          email: profile.emailAddress || "",
+          messagesTotal: profile.messagesTotal || 0,
+          messagesUnread: profile.messagesUnread || 0,
+        });
+        setIsAuthenticated(true);
+        await refreshEmails();
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
+        setIsAuthenticated(true);
+        await refreshEmails();
+      }
     });
   };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    setMessages([]);
+    setUserProfile(null);
+    setNextPageToken(null);
+  };
+
   const refreshEmails = async () => {
     try {
       const result = await listEmails(100, null);
@@ -41,6 +75,7 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
       console.error("Failed to fetch emails:", err);
     }
   };
+
   const loadMoreEmails = async () => {
     try {
       if (!nextPageToken) return;
@@ -51,6 +86,7 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
       console.error("Failed to load more emails:", err);
     }
   };
+
   const getEmailById = async (id: string) => {
     try {
       return await getEmail(id);
@@ -65,7 +101,9 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
       value={{
         isAuthenticated,
         messages,
+        userProfile,
         login,
+        logout,
         refreshEmails,
         getEmailById,
         loadMoreEmails,

@@ -1,15 +1,13 @@
 
 import { M3Avatar, M3Box, M3IconButton, M3Stack, M3Typography} from "m3r";
 import Home from "./pages/home/Home";
-import {  } from "@mui/material";
-import { Person, Settings,  } from "@mui/icons-material";
 import { MdColorLens, MdDoorbell, MdLogin, MdOutlineCalendarToday, MdOutlineCreate, MdOutlineEmail, MdOutlinePerson, MdSettings, MdSunny } from "react-icons/md";
 import { useGmail } from "./context/GmailContext";
 
 
 
 function App() {
-  const { isAuthenticated, login } = useGmail();
+  const { isAuthenticated, login, userProfile } = useGmail();
   return (
    <M3Box  className="main-container">
       <M3Stack className="nav-bar-contianer"  >
@@ -71,7 +69,7 @@ function App() {
 
         {
             !isAuthenticated ? (
-               <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"}   >
+               <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"} onClick={login} sx={{ cursor: 'pointer' }}  >
           <M3Box className={"segment-icon-container"}  >
              
               <MdLogin className="icon"/>
@@ -86,13 +84,22 @@ function App() {
             ) : (
               <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"}   >
           <M3Box className={"segment-icon-container"}   >
-              <M3IconButton className={" max-w-[56px] border-1 border-red-500"} >
-              <MdLogin className="text-green-500 w-[24px] h-[24px]  mt-[12px]"/>
-            </M3IconButton>
-          </M3Box>
+              <M3Avatar 
+                sx={{ 
+                  width: 40, 
+                  height: 40,
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}
+                alt={userProfile?.email || "User"}
+              >
+                {userProfile?.email?.charAt(0)?.toUpperCase() || "U"}
+              </M3Avatar>
+            </M3Box>
           <M3Box className={"flex flex-col items-top justify-center mt-1 w-full"}  >
               <M3Typography className="segment-label" fontSize={"12px"}>
-              Authenticated
+              Profile
             </M3Typography>
           </M3Box>
         </M3Box>
@@ -119,7 +126,7 @@ function App() {
  
           {/* main content container */}
           <Home />
-          
+
           </M3Box>
 
      
