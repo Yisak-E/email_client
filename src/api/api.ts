@@ -84,11 +84,15 @@ export function initializeGIS(onSuccess: () => void) {
    Google Identity Services - Trigger Auth
 ---------------------------- */
 export function initGoogleAuth(onSuccess: () => void) {
+  console.log("🔑 Initializing Google Auth, tokenClient status:", !!tokenClient);
   if (tokenClient) {
+    console.log("✅ TokenClient exists, requesting token...");
     tokenClient.requestAccessToken();
   } else {
+    console.log("❌ TokenClient missing, initializing GIS...");
     initializeGIS(onSuccess).then(() => {
       if (tokenClient) {
+        console.log("✅ GIS initialized, requesting token...");
         tokenClient.requestAccessToken();
       }
     }).catch(err => {
@@ -101,8 +105,12 @@ export function initGoogleAuth(onSuccess: () => void) {
    Fetch Gmail Messages with Pagination
 ---------------------------- */
 export async function listEmails(maxResults = 100, pageToken: string | null = null) {
-  if (!accessToken) throw new Error("User not authenticated");
+  if (!accessToken) {
+    console.error("❌ No access token - user not authenticated");
+    throw new Error("User not authenticated");
+  }
 
+  console.log("📡 Calling Gmail API - listEmails, maxResults:", maxResults);
   const params: any = {
     userId: "me",
     maxResults,
@@ -113,9 +121,32 @@ export async function listEmails(maxResults = 100, pageToken: string | null = nu
   }
 
   const response = await window.gapi.client.gmail.users.messages.list(params);
+  console.log("📥 Gmail API response received, messages:", response.result.messages?.length || 0);
+
+  const messageIds = response.result.messages || [];
+  
+  // Fetch full details for each message to get headers
+  console.log("📋 Fetching full details for", messageIds.length, "messages...");
+  const fullMessages = await Promise.all(
+    messageIds.map(async (msg: any) => {
+      try {
+        const fullMsg = await window.gapi.client.gmail.users.messages.get({
+          userId: "me",
+          id: msg.id,
+          format: "full",
+        });
+        return fullMsg.result;
+      } catch (err) {
+        console.error("Error fetching message:", msg.id, err);
+        return msg; // Return minimal message if full fetch fails
+      }
+    })
+  );
+
+  console.log("✅ Full messages fetched with headers");
 
   return {
-    messages: response.result.messages || [],
+    messages: fullMessages,
     nextPageToken: response.result.nextPageToken || null,
     resultSizeEstimate: response.result.resultSizeEstimate || 0,
   };

@@ -7,24 +7,10 @@ import { IoReorderThreeSharp } from "react-icons/io5";
 
 
 const Sidebar = () => {
-  const { selectedPage, setSelectedEmail } = useEmailContext();
+  const { selectedPage, setSelectedEmail, getHeader } = useEmailContext();
   const { messages: gmailMessages, isAuthenticated, getEmailById, loadMoreEmails } = useGmail();
   const [mailList, setMailList] = useState<MessageType[]>([]);
   const [filterType, setFilterType] = useState<"all" | "unread" | "read" | "starred">("all");
-
-  // Helper to decode base64
-  const decodeBase64 = (str: string): string => {
-    try {
-      return decodeURIComponent(atob(str).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-    } catch (e) {
-      return str;
-    }
-  };
-
-  // Helper to get header value from message
-  const getHeader = (message: MessageType, name: string): string => {
-    return message.payload?.headers?.find((h) => h.name === name)?.value || "";
-  };
 
   // Extract email address from sender string
   const extractEmailFromSender = (sender: string): string => {
@@ -48,8 +34,24 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
+    console.log("📧 Sidebar Debug:", {
+      isAuthenticated,
+      selectedPage,
+      gmailMessagesCount: gmailMessages.length,
+      mailListCount: mailList.length,
+    });
+
     if (isAuthenticated && selectedPage === "inbox" && gmailMessages.length > 0) {
-      setMailList(gmailMessages.map(convertGmailToMessage));
+      console.log("🔍 First email structure:", {
+        hasPayload: !!gmailMessages[0].payload,
+        hasHeaders: !!gmailMessages[0].payload?.headers,
+        headersCount: gmailMessages[0].payload?.headers?.length || 0,
+        firstHeaders: gmailMessages[0].payload?.headers?.slice(0, 3)?.map((h: any) => h.name),
+      });
+      
+      const convertedMessages = gmailMessages.map(convertGmailToMessage);
+      setMailList(convertedMessages);
+      console.log("✅ Emails set to mailList:", convertedMessages.length);
     } else {
       setMailList([]);
     }
@@ -70,6 +72,7 @@ const Sidebar = () => {
   };
 
   const filteredEmails = getFilteredEmails();
+  console.log("📬 Filtered emails:", { filterType, count: filteredEmails.length, total: mailList.length });
 
   const handleEmailClick = async (mail: MessageType) => {
     if (mail.id && setSelectedEmail) {
@@ -83,7 +86,7 @@ const Sidebar = () => {
 
   return (
     <M3Box 
-     className=" list-container"
+     className="list-container"
     >
 
       {/* Authentication Message */}
@@ -161,7 +164,11 @@ const Sidebar = () => {
       <M3Box 
         className="list-view">
         {filteredEmails.length > 0 ? (
-          filteredEmails.map((mail: MessageType) => (
+          filteredEmails.map((mail: MessageType) => {
+            const subject = getHeader(mail, "Subject");
+            const from = getHeader(mail, "From");
+            console.log(`📨 Rendering email - Subject: "${subject}", From: "${from}"`);
+            return (
             <M3Box
               key={mail.id}
               onClick={() => handleEmailClick(mail)}
@@ -182,6 +189,7 @@ const Sidebar = () => {
                 }
               }}
             >
+             
               <M3Avatar 
                 alt={getHeader(mail, "From")} 
                 src={getAvatarUrl(mail)} 
@@ -253,7 +261,8 @@ const Sidebar = () => {
                 </M3Typography>
               </M3Box>
             </M3Box>
-          ))
+            );
+          })
         ) : (
           isAuthenticated && (
             <M3Box sx={{ p: 2, textAlign: 'center', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

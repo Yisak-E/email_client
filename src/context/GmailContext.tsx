@@ -42,14 +42,16 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
   const login = () => {
     initGoogleAuth(async () => {
       try {
-        // Fetch user profile after authentication
+        console.log("🔐 Google Auth initiated...");
         const profile = await getUserProfile();
+        console.log("👤 User profile fetched:", profile.emailAddress);
         setUserProfile({
           email: profile.emailAddress || "",
           messagesTotal: profile.messagesTotal || 0,
           messagesUnread: profile.messagesUnread || 0,
         });
         setIsAuthenticated(true);
+        console.log("✅ Authenticated, refreshing emails...");
         await refreshEmails();
       } catch (err) {
         console.error("Failed to fetch user profile:", err);
@@ -68,7 +70,12 @@ export default function GmailProvider({ children }: { children: React.ReactNode 
 
   const refreshEmails = async () => {
     try {
+      console.log("📧 Fetching emails...");
       const result = await listEmails(100, null);
+      console.log("📨 Emails fetched:", result.messages?.length || 0, "messages");
+      if (result.messages?.length > 0) {
+        console.log("First email:", result.messages[0]);
+      }
       setMessages(result.messages);
       setNextPageToken(result.nextPageToken);
     } catch (err) {
