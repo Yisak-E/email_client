@@ -19,6 +19,23 @@ const Sidebar = () => {
     }
   };
 
+  // Extract email address from sender string (e.g., "John Doe <john@example.com>" -> "john@example.com")
+  const extractEmailFromSender = (sender: string): string => {
+    const emailMatch = sender.match(/<(.+?)>/);
+    if (emailMatch) return emailMatch[1];
+    // If no angle brackets, assume the whole string is an email
+    return sender || "";
+  };
+
+  // Get avatar URL from sender email using UI Avatars service
+  const getAvatarUrl = (sender: string): string => {
+    const email = extractEmailFromSender(sender);
+    if (!email) return `https://ui-avatars.com/api/?name=Unknown&background=random&size=40`;
+    // Extract name from email for display
+    const namePart = email.split('@')[0];
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(namePart)}&background=random&size=40`;
+  };
+
   // Convert Gmail API messages to MessageType format
   const convertGmailToMessage = (gmailMsg: any): MessageType => {
     const headers = gmailMsg.payload?.headers || [];
@@ -61,7 +78,7 @@ const Sidebar = () => {
 
     
   return (
-    <M3Box color="secondary" textAlign="center" m={0} p={0} borderRadius={4} boxShadow={3} >
+    <M3Box className="list-container" >
        <Typography variant="h6">{!isAuthenticated ? "Sign in to see emails" : `INBOX (${mailList.length})`}</Typography>
 
        {/* Authentication message */}
@@ -76,7 +93,7 @@ const Sidebar = () => {
        {/* filters */}
        {
         isAuthenticated && selectedPage === "inbox" && mailList.length > 0 && (
-          <M3Box display="flex" justifyContent="center" gap={2} mb={2}>
+          <M3Box className="list-filter-container">
             <Typography variant="inherit" color="textSecondary">All</Typography>
             <Typography variant="body1" color="textSecondary">Unread</Typography>
             <Typography variant="body2" color="textSecondary">Starred</Typography>
@@ -84,7 +101,7 @@ const Sidebar = () => {
         )
        }
 
-      <List sx={{ width: '100%',height: 'calc(100vh - 180px)', bgcolor: 'background.paper' }} className="overflow-y-scroll">
+      <List className="list-view">
         {mailList.length > 0 ? (
           mailList.map((mail: MessageType) => (
             <ListItem 
@@ -122,27 +139,36 @@ const Sidebar = () => {
                     }
                    }
                 }}
-                alignItems="flex-start" sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
-              <M3Box component="span" sx={{ display: 'block', fontWeight: 'bold', color: 'text.primary' }}>
-                <M3Avatar alt={mail.id.toString()} src={`https://i.pravatar.cc/150?u=${mail.id}`} className="w-8 h-8 border-2 border-white shadow-sm mr-4" />
+                alignItems="flex-start" sx={{ borderBottom: '1px solid', borderColor: 'divider', py: 1 }}>
+              <M3Box component="span" sx={{ display: 'block', mr: 1.5, flexShrink: 0 }}>
+                <M3Avatar 
+                  alt={mail.sender} 
+                  src={getAvatarUrl(mail.sender)} 
+                  sx={{ width: 40, height: 40 }}
+                />
               </M3Box>
               <ListItemText
-                primary={mail.subject}
+                primary={
+                  <Typography variant="subtitle2" sx={{ fontWeight: 500, mb: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {mail.subject || "(No Subject)"}
+                  </Typography>
+                }
                 secondary={
                   <>
-                    <M3Box component="span" sx={{ display: 'block', color: 'text.primary' }}>
+                    <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', mb: 0.5 }}>
                       {mail.sender}
-                    </M3Box>
-                    <M3Box component="span" sx={{ display: 'block', color: 'text.secondary' }}>
-                      {mail.time}
-                    </M3Box>
+                    </Typography>
+                    <Typography variant="caption" sx={{ display: 'block', color: 'text.disabled' }}>
+                      {mail.time ? new Date(mail.time).toLocaleDateString() : ""}
+                    </Typography>
                   </>
                 }
+                sx={{ m: 0 }}
               />
-              <M3Box>
+              <M3Box sx={{ ml: 1, flexShrink: 0 }}>
                 {/* small icon to show if it is read/unread/starred */}
                 {!mail.read && (
-                   <M3Box component="span" sx={{ display: 'block', color: 'textSecondary' }} width={10} height={10} borderRadius="50%" bgcolor="primary.main" >
+                   <M3Box component="span" sx={{ display: 'block', color: 'primary.main' }} width={8} height={8} borderRadius="50%" bgcolor="primary.main" >
                     </M3Box>
                 ) }
               </M3Box>

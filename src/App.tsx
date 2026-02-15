@@ -1,59 +1,130 @@
 
-import { M3Avatar, M3Box} from "m3r";
+import { M3Avatar, M3Box, M3IconButton, M3Stack, M3Typography} from "m3r";
 import Home from "./pages/home/Home";
 import {  } from "@mui/material";
 import { Person, Settings,  } from "@mui/icons-material";
-import LeftMostSideBar from "./components/layout/LeftMostSideBar";
+import { MdColorLens, MdDoorbell, MdLogin, MdOutlineCalendarToday, MdOutlineCreate, MdOutlineEmail, MdOutlinePerson, MdSettings, MdSunny } from "react-icons/md";
+import { useGmail } from "./context/GmailContext";
+
 
 
 function App() {
+  const { isAuthenticated, login } = useGmail();
   return (
-   <M3Box  color="background" display="flex" flexDirection={"row"}  maxHeight="100vh" p={0} m={0} border="1px solid black" borderColor="divider">
-       <M3Box color="secondary" display={"flex"} flexDirection={"column"} alignItems={"center"} textAlign="center" m={0}  p={0} width={64} boxShadow={3} height={"100vh"} >
-         {/* side bar left most  */}
-         <LeftMostSideBar />
+   <M3Box  className="main-container">
+      <M3Stack className="nav-bar-contianer"  >
+      <M3Box className="bg-[#dbe1ff] rounded-[16px] max-w-[56px]  " >
+        <M3IconButton  className={" max-w-[56px] border-1 border-red-500"} >
+          <MdOutlineCreate className="text-black w-[24px] h-[24px] "/>
+        </M3IconButton>
       </M3Box>
-     <M3Box display="flex" flexDirection={"column"} flex={1}  m={0} p={0} boxShadow={3} height={"100vh"} >
+      
+      <M3Stack className="nav-bar-contianer2">
+        <M3Box className="segment-container"  >
+          
+          <M3Box className={"segment-icon-container"} >
+              <MdOutlineEmail className="icon"/>
+          </M3Box>
+         
+             <M3Typography className="segment-label" fontSize={"12px"}>
+              Email
+            </M3Typography>
+         
+        </M3Box>
+         <M3Box className="segment-container"    >
+          <M3Box className={"segment-icon-container"}>
+              <MdOutlineCalendarToday  className="icon"/> 
+          </M3Box>
+
+           <M3Typography className="segment-label"  fontSize={"12px"}>
+              Calendar
+            </M3Typography>
+         
+        </M3Box>
+         <M3Box className="segment-container " >
+            <M3Box className={"segment-icon-container"}>
+              <MdOutlinePerson className="icon"/>
+            </M3Box>
+            <M3Typography className="segment-label" fontSize={"12px"}>
+              Contacts
+            </M3Typography>
+        
+        </M3Box>
+         
+      </M3Stack>
+      <M3Stack className="nav-bar-contianer3">
+      <M3Box>
+        <MdSunny className="icon border border-gray-300"/>
+      </M3Box>
+       <M3Box>
+        <MdDoorbell className="icon border border-gray-300" />
+        </M3Box>
+       <M3Box>
+        <MdColorLens className="icon border border-gray-300"/>
+      </M3Box>
+
+       <M3Box>
+        <MdSettings className="icon border border-gray-300"/>
+      </M3Box>
+
+
+
+        {
+            !isAuthenticated ? (
+               <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"}   >
+          <M3Box className={"segment-icon-container"}  >
+             
+              <MdLogin className="icon"/>
+           
+          </M3Box>
+         <M3Box className={"flex flex-col items-top justify-center mt-1 w-full"}  >
+             <M3Typography className="segment-label" fontSize={"12px"}>
+              Login
+            </M3Typography>
+          </M3Box>
+        </M3Box>
+            ) : (
+              <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"}   >
+          <M3Box className={"segment-icon-container"}   >
+              <M3IconButton className={" max-w-[56px] border-1 border-red-500"} >
+              <MdLogin className="text-green-500 w-[24px] h-[24px]  mt-[12px]"/>
+            </M3IconButton>
+          </M3Box>
+          <M3Box className={"flex flex-col items-top justify-center mt-1 w-full"}  >
+              <M3Typography className="segment-label" fontSize={"12px"}>
+              Authenticated
+            </M3Typography>
+          </M3Box>
+        </M3Box>
+            )
+        }
+      </M3Stack>
+     
+    </M3Stack>
+     <M3Box className="mini-main-container border " >
      {/* nav bar top most */}
-      <M3Box color="primary"   textAlign="center" m={0}  p={2} height={90}  boxShadow={3} >
-        <M3Box color="secondary"  display={"flex"} flexDirection={"row"} alignItems={"center"} justifyContent={"space-between"} p={0}  >
-          {/* logo */}
-          <M3Box color="secondary container" fontSize={24} fontWeight="bold">
+      <M3Box className="top-nav-bar-container" >
+       
+      
+          <M3Box className="logo-container"  >
             NanoVoltz
           </M3Box>
           {/* global search */}
-          <M3Box component="form"
-            sx={{ display: "flex", alignItems: "center", mt: 2 }}
-          >
-            <M3Box color="secondary container" bgcolor={"teri"} fontSize={16} mr={1}>
-              Search:
-            </M3Box>
-            <M3Box
-              component="input"
-              
-              sx={{
-                flex: 1,
-                p: 1,
-                borderRadius: 1,
-                border: "1px solid",
-                borderColor: "divider",
-              }}
-            />
+          <M3Box className="global-search-container" >
+            <M3Typography className="global-search-placeholder" >
+              Search Mail
+            </M3Typography>
           </M3Box>
-          <M3Box  display={"flex"} flexDirection={"row"} alignItems={"center"} justifyContent={"space-between"} p={0} borderRadius={4} boxShadow={3} >
-            {/* user profile or settings */}
-            <M3Box color="primary" fontSize={16} mr={2} display="flex" flexDirection={"column"} alignItems="center" gap={1} >
-              <M3Avatar alt="User Avatar" src="/static/images/avatar/1.jpg" sx={{ width: 40, height: 40 }}>
-                 <Person /> 
-              </M3Avatar>
-            </M3Box>
-  <M3Box color="primary" fontSize={16} mr={2} display="flex" flexDirection={"column"} alignItems="center" gap={1} > <M3Avatar alt="Settings Avatar" src="/static/images/avatar/1.jpg" sx={{ width: 40, height: 40 }}> <Settings /> </M3Avatar> </M3Box> </M3Box> </M3Box>
-      </M3Box>
-      <M3Box color="background"  textAlign="center" m={0}  p={0} flex={1} boxShadow={3} width="100%" height={"calc(100vh - 90px)"} >
-       <Home/>
-      </M3Box>
+          </M3Box>
+ 
+          {/* main content container */}
+          <Home />
+          
+          </M3Box>
 
-     </M3Box>
+     
+
+    
     
    </M3Box>
   );
