@@ -1,11 +1,22 @@
 export type MessageType = {
-  id: number | string;
-  sender: string;
-  subject: string;
-  content: string;
-  time: string;
-  status: string;
-  read: boolean;
-  preview?: string;
-  to?: string;
+  id: string;
+  threadId: string;
+  labelIds: string[];
+  snippet: string;
+  payload: {
+    mimeType: string;
+    headers: Array<{
+      name: string;
+      value: string;
+    }>;
+    parts?: Array<{
+      mimeType: string;
+      body: {
+        data: string;
+      };
+    }>;
+    body?: {
+      data: string;
+    };
+  };
 };

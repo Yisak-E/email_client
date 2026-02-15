@@ -12,6 +12,7 @@ import trashMessages from "./data/trashMessages.json";
 import spamMessages from "./data/spamMessages.json";
 import draftMessages from "./data/draftMessages.json";
 import type { MessageType } from "./types/MailType";
+import { decodeBase64, getHeader, getEmailBody } from "./utils/emailUtils";
 
 
 type EmailContextType = {
@@ -26,6 +27,10 @@ type EmailContextType = {
     setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash") => void;
     selectedEmail?: MessageType;
     setSelectedEmail?: (email: MessageType) => void;
+    // Email utility methods
+    decodeBase64: (str: string) => string;
+    getHeader: (email: MessageType | undefined, name: string) => string;
+    getEmailBody: (email: MessageType | undefined) => string;
 };
 
 const EmailContext = createContext<EmailContextType>({
@@ -40,7 +45,9 @@ const EmailContext = createContext<EmailContextType>({
     setSelectedPage: () => { },
     selectedEmail: undefined,
     setSelectedEmail: () => { },
-    
+    decodeBase64: decodeBase64,
+    getHeader: getHeader,
+    getEmailBody: getEmailBody,
 });
 
 
@@ -63,7 +70,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, []);
 
     return (
-        <EmailContext.Provider value={{ inboxMessageList, sentMessageList, draftMessageList, spamMessageList, trashMessageList, showSubNav, setShowSubNav, selectedPage, setSelectedPage, selectedEmail, setSelectedEmail }}>
+        <EmailContext.Provider value={{ inboxMessageList, sentMessageList, draftMessageList, spamMessageList, trashMessageList, showSubNav, setShowSubNav, selectedPage, setSelectedPage, selectedEmail, setSelectedEmail, decodeBase64, getHeader, getEmailBody }}>
             {children}
         </EmailContext.Provider>
     );

@@ -1,50 +1,50 @@
-import { Box, Typography } from '@mui/material';
-import { MailLockOutlined } from '@mui/icons-material';
 import { useEmailContext } from '../../EmailContext';
+import { M3Box, M3Typography } from 'm3r';
+import { MdMail } from 'react-icons/md';
 
 
 const EmailView = () => {
-  const {selectedEmail} = useEmailContext();
-    
+  const { selectedEmail, getHeader, getEmailBody } = useEmailContext();
+
   return (
-     <Box className="flex-1 p-4 h-full" >
+     <M3Box className='overflow-y-scroll max-h-[calc(100vh-140px)] h-full max-w-[calc(100vw-500px)]'  >
         {/* Placeholder for email content view */}
-        <Box className="h-full flex flex-col items-center justify-center text-center px-4 bg-gray-300">
+        <M3Box className="h-full flex flex-col items-center justify-center text-center px-4 bg-gray-100">
            {
             selectedEmail ? (
-              <Box className="bg-white p-6  shadow-md w-full h-full overflow-y-auto">
-                <Typography variant="h5" className="font-bold mb-2">
-                  {selectedEmail.subject}
-                </Typography>
-                <Typography variant="subtitle2" className="text-gray-700 mb-1">
-                  From: {selectedEmail.sender}
-                </Typography>
-                {selectedEmail.to && (
-                  <Typography variant="subtitle2" className="text-gray-700 mb-1">
-                    To: {selectedEmail.to}
-                  </Typography>
+              <M3Box className="bg-white p-6 shadow-md w-full h-full overflow-y-auto">
+                <M3Typography variant="headlineLarge" className="font-bold mb-2">
+                  {getHeader(selectedEmail, "Subject")}
+                </M3Typography>
+                <M3Typography variant="bodyLarge" className="text-gray-700 mb-1">
+                  From: {getHeader(selectedEmail, "From")}
+                </M3Typography>
+                {getHeader(selectedEmail, "To") && (
+                  <M3Typography variant="bodyMedium" className="text-gray-700 mb-1">
+                    To: {getHeader(selectedEmail, "To")}
+                  </M3Typography>
                 )}
-                <Typography variant="subtitle2" className="text-gray-500 mb-4">
-                  {selectedEmail.time}
-                </Typography>
-                 <Box className="mt-4 w-2/3 mx-auto" >
-                  <Typography variant="body1" className="text-gray-800 whitespace-pre-line">
-                    {selectedEmail.content}
-                  </Typography>
-                 </Box>
-              </Box>
+                <M3Typography variant="bodySmall" className="text-gray-500 mb-4">
+                  {getHeader(selectedEmail, "Date")}
+                </M3Typography>
+                 <M3Box className="mt-4 w-2/3 mx-auto" >
+                  <M3Typography variant="bodyMedium" className="text-gray-800 whitespace-pre-line">
+                    {getEmailBody(selectedEmail)}
+                  </M3Typography>
+                 </M3Box>
+              </M3Box>
             ) : (
-              <Box className="flex flex-col items-center gap-4">
-                <MailLockOutlined className="text-gray-400" style={{ fontSize: '48px' }} />
-                <Typography variant="h6" className="text-gray-600">
+              <M3Box className="flex flex-col items-center gap-4">
+                <MdMail className="text-purple-400" style={{ fontSize: '400px' }} />
+                <M3Typography variant="bodyLarge" className="text-gray-600">
                   Select an email to view its content
-                </Typography>
-              </Box>
+                </M3Typography>
+              </M3Box>
             )
 
            } 
-        </Box>
-      </Box>
+        </M3Box>
+      </M3Box>
   );
 };
 
