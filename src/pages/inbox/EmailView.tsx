@@ -1,7 +1,6 @@
-import {  MailOutlined } from '@mui/icons-material';
 import { useEmailContext } from '../../EmailContext';
-import { M3Box } from 'm3r';
-import { Typography } from '@mui/material';
+import { M3Box, M3Typography } from 'm3r';
+import { MdMail } from 'react-icons/md';
 
 
 const EmailView = () => {
@@ -10,36 +9,36 @@ const EmailView = () => {
   return (
      <M3Box className="flex-1 p-0 h-full" >
         {/* Placeholder for email content view */}
-        <M3Box className="h-full flex flex-col items-center justify-center text-center px-4 bg-gray-300">
+        <M3Box className="h-full flex flex-col items-center justify-center text-center px-4 bg-gray-100">
            {
             selectedEmail ? (
-              <M3Box className="bg-white p-6  shadow-md w-full h-full overflow-y-auto">
-                <Typography variant="h5" className="font-bold mb-2">
+              <M3Box className="bg-white p-6 shadow-md w-full h-full overflow-y-auto">
+                <M3Typography variant="headlineLarge" className="font-bold mb-2">
                   {selectedEmail.subject}
-                </Typography>
-                <Typography variant="h6" className="text-gray-700 mb-1">
+                </M3Typography>
+                <M3Typography variant="bodyLarge" className="text-gray-700 mb-1">
                   From: {selectedEmail.sender}
-                </Typography>
+                </M3Typography>
                 {selectedEmail.to && (
-                  <Typography variant="subtitle2" className="text-gray-700 mb-1">
+                  <M3Typography variant="bodyMedium" className="text-gray-700 mb-1">
                     To: {selectedEmail.to}
-                  </Typography>
+                  </M3Typography>
                 )}
-                <Typography variant="subtitle2" className="text-gray-500 mb-4">
+                <M3Typography variant="bodySmall" className="text-gray-500 mb-4">
                   {selectedEmail.time}
-                </Typography>
+                </M3Typography>
                  <M3Box className="mt-4 w-2/3 mx-auto" >
-                  <Typography variant="body1" className="text-gray-800 whitespace-pre-line">
+                  <M3Typography variant="bodyMedium" className="text-gray-800 whitespace-pre-line">
                     {selectedEmail.content}
-                  </Typography>
+                  </M3Typography>
                  </M3Box>
               </M3Box>
             ) : (
               <M3Box className="flex flex-col items-center gap-4">
-                <MailOutlined className="text-purple-400" style={{ fontSize: '400px' }} />
-                <Typography variant="h6" className="text-gray-600">
+                <MdMail className="text-purple-400" style={{ fontSize: '400px' }} />
+                <M3Typography variant="bodyLarge" className="text-gray-600">
                   Select an email to view its content
-                </Typography>
+                </M3Typography>
               </M3Box>
             )
 
