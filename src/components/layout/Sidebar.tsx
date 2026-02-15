@@ -1,8 +1,10 @@
-import { M3Avatar, M3Box, M3Typography, M3Chip } from "m3r";
+import { M3Avatar, M3Box, M3Typography, M3Chip, M3Checkbox } from "m3r";
 import { useEffect, useState } from "react";
 import type { MessageType } from "../../types/MailType";
 import { useEmailContext } from "../../EmailContext";
 import { useGmail } from "../../context/GmailContext.tsx";
+import { IoReorderThreeSharp } from "react-icons/io5";
+
 
 const Sidebar = () => {
   const { selectedPage, setSelectedEmail } = useEmailContext();
@@ -19,6 +21,11 @@ const Sidebar = () => {
     }
   };
 
+  // Helper to get header value from message
+  const getHeader = (message: MessageType, name: string): string => {
+    return message.payload?.headers?.find((h) => h.name === name)?.value || "";
+  };
+
   // Extract email address from sender string
   const extractEmailFromSender = (sender: string): string => {
     const emailMatch = sender.match(/<(.+?)>/);
@@ -27,39 +34,17 @@ const Sidebar = () => {
   };
 
   // Get avatar URL from sender email
-  const getAvatarUrl = (sender: string): string => {
+  const getAvatarUrl = (message: MessageType): string => {
+    const sender = getHeader(message, "From");
     const email = extractEmailFromSender(sender);
     if (!email) return `https://ui-avatars.com/api/?name=Unknown&background=random&size=40`;
     const namePart = email.split('@')[0];
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(namePart)}&background=random&size=40`;
   };
 
-  // Convert Gmail API messages to MessageType format
+  // Convert Gmail API messages to MessageType format (just pass through)
   const convertGmailToMessage = (gmailMsg: any): MessageType => {
-    const headers = gmailMsg.payload?.headers || [];
-    const getHeader = (name: string) => headers.find((h: any) => h.name === name)?.value || "";
-    
-    let emailBody = "";
-    if (gmailMsg.payload?.parts) {
-      const textPart = gmailMsg.payload.parts.find((part: any) => part.mimeType === "text/plain");
-      if (textPart && textPart.body?.data) {
-        emailBody = decodeBase64(textPart.body.data.replace(/\-/g, '+').replace(/_/g, '/'));
-      }
-    } else if (gmailMsg.payload?.body?.data) {
-      emailBody = decodeBase64(gmailMsg.payload.body.data.replace(/\-/g, '+').replace(/_/g, '/'));
-    }
-    
-    return {
-      id: gmailMsg.id,
-      sender: getHeader("From"),
-      subject: getHeader("Subject") || "(No Subject)",
-      content: emailBody || gmailMsg.snippet || "",
-      time: getHeader("Date"),
-      status: "new",
-      read: !gmailMsg.labelIds?.includes("UNREAD"),
-      preview: gmailMsg.snippet,
-      to: getHeader("To"),
-    };
+    return gmailMsg as MessageType;
   };
 
   useEffect(() => {
@@ -74,11 +59,11 @@ const Sidebar = () => {
   const getFilteredEmails = () => {
     switch (filterType) {
       case "unread":
-        return mailList.filter(mail => !mail.read);
+        return mailList.filter(mail => mail.labelIds?.includes("UNREAD"));
       case "read":
-        return mailList.filter(mail => mail.read);
+        return mailList.filter(mail => !mail.labelIds?.includes("UNREAD"));
       case "starred":
-        return mailList.filter(mail => mail.status === "starred");
+        return mailList.filter(mail => mail.labelIds?.includes("STARRED"));
       default:
         return mailList;
     }
@@ -90,53 +75,16 @@ const Sidebar = () => {
     if (mail.id && setSelectedEmail) {
       const fullEmail = await getEmailById(mail.id as string);
       if (fullEmail) {
-        const headers = fullEmail.payload?.headers || [];
-        const getHeader = (name: string) => headers.find((h: any) => h.name === name)?.value || "";
-        
-        let emailBody = "";
-        if (fullEmail.payload?.parts) {
-          const textPart = fullEmail.payload.parts.find((part: any) => part.mimeType === "text/plain");
-          if (textPart && textPart.body?.data) {
-            emailBody = decodeBase64(textPart.body.data.replace(/\-/g, '+').replace(/_/g, '/'));
-          }
-        } else if (fullEmail.payload?.body?.data) {
-          emailBody = decodeBase64(fullEmail.payload.body.data.replace(/\-/g, '+').replace(/_/g, '/'));
-        }
-        
-        const enrichedEmail: MessageType = {
-          ...mail,
-          content: emailBody || mail.content,
-          sender: getHeader("From") || mail.sender,
-          subject: getHeader("Subject") || mail.subject,
-          to: getHeader("To") || mail.to,
-          time: getHeader("Date") || mail.time,
-        };
-        
+        const enrichedEmail: MessageType = fullEmail as MessageType;
         setSelectedEmail(enrichedEmail);
-        enrichedEmail.read = true;
       }
     }
   };
 
   return (
     <M3Box 
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        maxHeight: '700px',
-        width: '100%',
-        maxWidth: '700px',
-        overflow: 'hidden',
-        backgroundColor: '#FAF8FF'
-      }}
+     className=" list-container"
     >
-      {/* Header */}
-      <M3Box sx={{ px: 2, py: 2, flexShrink: 0 }}>
-        <M3Typography variant="headlineSmall" display="block">
-          {!isAuthenticated ? "Sign in to see emails" : `Inbox (${mailList.length})`}
-        </M3Typography>
-      </M3Box>
 
       {/* Authentication Message */}
       {!isAuthenticated && (
@@ -150,85 +98,68 @@ const Sidebar = () => {
       {/* Filters - Horizontal Scroll */}
       {isAuthenticated && selectedPage === "inbox" && mailList.length > 0 && (
         <M3Box 
-          sx={{ 
-            px: 2, 
-            py: 1,
-            flexShrink: 0,
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            gap: 1,
-            overflowX: 'auto',
-            overflowY: 'hidden',
-            '&::-webkit-scrollbar': {
-              height: '4px'
-            },
-            '&::-webkit-scrollbar-track': {
-              background: 'transparent'
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: '#CCCCCC',
-              borderRadius: '2px'
-            }
-          }}
+         className="list-filter-container"
         >
-          <M3Chip
-            label="All"
-            onClick={() => setFilterType("all")}
-            variant={(filterType === "all" ? "filled" : "outlined") as any}
-            sx={{ flexShrink: 0, cursor: 'pointer' }}
-          />
-          <M3Chip
-            label="Read"
-            onClick={() => setFilterType("read")}
-            variant={(filterType === "read" ? "filled" : "outlined") as any}
-            sx={{ flexShrink: 0, cursor: 'pointer' }}
-          />
-          <M3Chip
-            label="Unread"
-            onClick={() => setFilterType("unread")}
-            variant={(filterType === "unread" ? "filled" : "outlined") as any}
-            sx={{ flexShrink: 0, cursor: 'pointer' }}
-          />
-          <M3Chip
-            label="Starred"
-            onClick={() => setFilterType("starred")}
-            variant={(filterType === "starred" ? "filled" : "outlined") as any}
-            sx={{ flexShrink: 0, cursor: 'pointer' }}
-          />
-          <M3Chip
-            label="Clear"
-            onClick={() => setFilterType("all")}
-            variant="outlined"
-            sx={{ flexShrink: 0, cursor: 'pointer' }}
-          />
+         <M3Box>
+          <M3Box className="filter-row-1 bg-blue-600">
+            <M3Box className="float-left">
+              <IoReorderThreeSharp size={24} color="#000000" />
+            </M3Box>
+
+             <M3Box className="filter-container">
+              <M3Typography variant="headlineSmall" display="block">
+                {!isAuthenticated ? "Sign in to see emails" : `Inbox (${mailList.length})`}
+              </M3Typography>
+            </M3Box>
+
+            <M3Box>
+              <M3Checkbox
+                // checked={selectAllChecked}
+                // onChange={() => setSelectAllChecked(!selectAllChecked)}
+              />
+            </M3Box>
+
+          </M3Box>
+
+         </M3Box>
+            <M3Box className="filter-row-2">
+              <M3Chip
+                label="All"
+                onClick={() => setFilterType("all")}
+                variant={(filterType === "all" ? "filled" : "outlined") as any}
+                className="filter-chip"
+              />
+              <M3Chip
+                label="Read"
+                onClick={() => setFilterType("read")}
+                variant={(filterType === "read" ? "filled" : "outlined") as any}
+                className="filter-chip"
+              />
+              <M3Chip
+                label="Unread"
+                onClick={() => setFilterType("unread")}
+                variant={(filterType === "unread" ? "filled" : "outlined") as any}
+                className="filter-chip"
+              />
+              <M3Chip
+                label="Starred"
+                onClick={() => setFilterType("starred")}
+                variant={(filterType === "starred" ? "filled" : "outlined") as any}
+                sx={{ flexShrink: 0, cursor: 'pointer' }}
+              />
+              {/* <M3Chip
+                label="Clear"
+                onClick={() => setFilterType("all")}
+                variant="outlined"
+                sx={{ flexShrink: 0, cursor: 'pointer' }}
+              /> */}
+            </M3Box>
         </M3Box>
       )}
 
       {/* Email List - Scrollable Container */}
       <M3Box 
-        sx={{
-          flex: 1,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: 0,
-          '&::-webkit-scrollbar': {
-            width: '6px'
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'transparent'
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#CCCCCC',
-            borderRadius: '3px',
-            '&:hover': {
-              background: '#999999'
-            }
-          }
-        }}
-      >
+        className="list-view">
         {filteredEmails.length > 0 ? (
           filteredEmails.map((mail: MessageType) => (
             <M3Box
@@ -243,17 +174,17 @@ const Sidebar = () => {
                 borderBottom: '1px solid #E8E7EF',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                backgroundColor: mail.read ? '#FAF8FF' : '#F0F3FF',
+                backgroundColor: mail.labelIds?.includes("UNREAD") ? '#F0F3FF' : '#FAF8FF',
                 '&:hover': {
-                  backgroundColor: mail.read ? '#F5F3FF' : '#E8EBFF',
+                  backgroundColor: mail.labelIds?.includes("UNREAD") ? '#E8EBFF' : '#F5F3FF',
                   borderLeft: '3px solid #4A5C92',
                   paddingLeft: 'calc(1rem - 3px)'
                 }
               }}
             >
               <M3Avatar 
-                alt={mail.sender} 
-                src={getAvatarUrl(mail.sender)} 
+                alt={getHeader(mail, "From")} 
+                src={getAvatarUrl(mail)} 
                 sx={{ width: 40, height: 40, flexShrink: 0, mt: 0.25 }}
               />
               <M3Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
@@ -261,18 +192,18 @@ const Sidebar = () => {
                   <M3Typography 
                     variant="labelLarge" 
                     sx={{ 
-                      fontWeight: mail.read ? 400 : 600,
+                      fontWeight: mail.labelIds?.includes("UNREAD") ? 600 : 400,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
                       flex: 1,
-                      color: mail.read ? '#49454F' : '#324478'
+                      color: mail.labelIds?.includes("UNREAD") ? '#324478' : '#49454F'
                     }}
                   >
-                    {mail.subject || "(No Subject)"}
+                    {getHeader(mail, "Subject") || "(No Subject)"}
                   </M3Typography>
                   <M3Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
-                    {!mail.read && (
+                    {mail.labelIds?.includes("UNREAD") && (
                       <M3Box 
                         sx={{ 
                           width: '8px', 
@@ -292,21 +223,21 @@ const Sidebar = () => {
                         minWidth: 'fit-content'
                       }}
                     >
-                      {mail.time ? new Date(mail.time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ""}
+                      {getHeader(mail, "Date") ? new Date(getHeader(mail, "Date")).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ""}
                     </M3Typography>
                   </M3Box>
                 </M3Box>
                 <M3Typography 
                   variant="bodySmall" 
                   sx={{
-                    color: mail.read ? '#49454F' : '#324478',
-                    fontWeight: mail.read ? 400 : 500,
+                    color: mail.labelIds?.includes("UNREAD") ? '#324478' : '#caf312',
+                    fontWeight: mail.labelIds?.includes("UNREAD") ? 500 : 400,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap'
                   }}
                 >
-                  {mail.sender}
+                  {getHeader(mail, "From") || "Unknown Sender"}
                 </M3Typography>
                 <M3Typography 
                   variant="labelSmall"
@@ -318,7 +249,7 @@ const Sidebar = () => {
                     fontSize: '0.75rem'
                   }}
                 >
-                  {mail.preview || mail.content?.substring(0, 50)}
+                  {mail.snippet}
                 </M3Typography>
               </M3Box>
             </M3Box>
