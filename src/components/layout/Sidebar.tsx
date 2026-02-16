@@ -2,13 +2,11 @@ import { M3Avatar, M3Box, M3Typography, M3Chip, M3Checkbox } from "m3r";
 import { useEffect, useState } from "react";
 import type { MessageType } from "../../types/MailType";
 import { useEmailContext } from "../../EmailContext";
-import { useGmail } from "../../context/GmailContext.tsx";
 import { IoReorderThreeSharp } from "react-icons/io5";
 
 
 const Sidebar = () => {
-  const { selectedPage, setSelectedEmail, getHeader } = useEmailContext();
-  const { messages: gmailMessages, isAuthenticated, getEmailById, loadMoreEmails } = useGmail();
+  const { selectedPage, setSelectedEmail, getHeader, inboxMessageList, isConnected } = useEmailContext();
   const [mailList, setMailList] = useState<MessageType[]>([]);
   const [filterType, setFilterType] = useState<"all" | "unread" | "read" | "starred">("all");
 
@@ -28,34 +26,28 @@ const Sidebar = () => {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(namePart)}&background=random&size=40`;
   };
 
-  // Convert Gmail API messages to MessageType format (just pass through)
-  const convertGmailToMessage = (gmailMsg: any): MessageType => {
-    return gmailMsg as MessageType;
-  };
-
   useEffect(() => {
     console.log("📧 Sidebar Debug:", {
-      isAuthenticated,
+      isConnected,
       selectedPage,
-      gmailMessagesCount: gmailMessages.length,
+      inboxMessagesCount: inboxMessageList.length,
       mailListCount: mailList.length,
     });
 
-    if (isAuthenticated && selectedPage === "inbox" && gmailMessages.length > 0) {
+    if (isConnected && selectedPage === "inbox" && inboxMessageList.length > 0) {
       console.log("🔍 First email structure:", {
-        hasPayload: !!gmailMessages[0].payload,
-        hasHeaders: !!gmailMessages[0].payload?.headers,
-        headersCount: gmailMessages[0].payload?.headers?.length || 0,
-        firstHeaders: gmailMessages[0].payload?.headers?.slice(0, 3)?.map((h: any) => h.name),
+        hasPayload: !!inboxMessageList[0].payload,
+        hasHeaders: !!inboxMessageList[0].payload?.headers,
+        headersCount: inboxMessageList[0].payload?.headers?.length || 0,
+        firstHeaders: inboxMessageList[0].payload?.headers?.slice(0, 3)?.map((h: any) => h.name),
       });
       
-      const convertedMessages = gmailMessages.map(convertGmailToMessage);
-      setMailList(convertedMessages);
-      console.log("✅ Emails set to mailList:", convertedMessages.length);
+      setMailList(inboxMessageList);
+      console.log("✅ Emails set to mailList:", inboxMessageList.length);
     } else {
       setMailList([]);
     }
-  }, [selectedPage, gmailMessages, isAuthenticated]);
+  }, [selectedPage, inboxMessageList, isConnected]);
 
   // Filter emails based on selected filter
   const getFilteredEmails = () => {
@@ -74,13 +66,9 @@ const Sidebar = () => {
   const filteredEmails = getFilteredEmails();
   console.log("📬 Filtered emails:", { filterType, count: filteredEmails.length, total: mailList.length });
 
-  const handleEmailClick = async (mail: MessageType) => {
+  const handleEmailClick = (mail: MessageType) => {
     if (mail.id && setSelectedEmail) {
-      const fullEmail = await getEmailById(mail.id as string);
-      if (fullEmail) {
-        const enrichedEmail: MessageType = fullEmail as MessageType;
-        setSelectedEmail(enrichedEmail);
-      }
+      setSelectedEmail(mail);
     }
   };
 
@@ -89,17 +77,17 @@ const Sidebar = () => {
      className="list-container"
     >
 
-      {/* Authentication Message */}
-      {!isAuthenticated && (
+      {/* Connection Message */}
+      {!isConnected && (
         <M3Box sx={{ px: 2, py: 2, textAlign: 'center', flexShrink: 0 }}>
           <M3Typography variant="bodySmall" className="text-gray-600">
-            Please sign in with your Google account to view your Gmail inbox.
+            Go to Settings ⚙️ to configure your email account and connect to your mail server.
           </M3Typography>
         </M3Box>
       )}
 
       {/* Filters - Horizontal Scroll */}
-      {isAuthenticated && selectedPage === "inbox" && mailList.length > 0 && (
+      {isConnected && selectedPage === "inbox" && mailList.length > 0 && (
         <M3Box 
          className="list-filter-container"
         >
@@ -111,7 +99,7 @@ const Sidebar = () => {
 
              <M3Box className="filter-container">
               <M3Typography variant="headlineSmall" display="block">
-                {!isAuthenticated ? "Sign in to see emails" : `Inbox (${mailList.length})`}
+                {!isConnected ? "Not connected" : `Inbox (${mailList.length})`}
               </M3Typography>
             </M3Box>
 
@@ -150,12 +138,6 @@ const Sidebar = () => {
                 variant={(filterType === "starred" ? "filled" : "outlined") as any}
                 sx={{ flexShrink: 0, cursor: 'pointer' }}
               />
-              {/* <M3Chip
-                label="Clear"
-                onClick={() => setFilterType("all")}
-                variant="outlined"
-                sx={{ flexShrink: 0, cursor: 'pointer' }}
-              /> */}
             </M3Box>
         </M3Box>
       )}
@@ -264,7 +246,7 @@ const Sidebar = () => {
             );
           })
         ) : (
-          isAuthenticated && (
+          isConnected && (
             <M3Box sx={{ p: 2, textAlign: 'center', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <M3Typography variant="bodySmall" className="text-gray-600">
                 {filterType !== "all" ? "No emails match this filter" : "No emails found"}
@@ -273,31 +255,6 @@ const Sidebar = () => {
           )
         )}
       </M3Box>
-
-      {/* Load More Button */}
-      {isAuthenticated && mailList.length > 0 && (
-        <M3Box sx={{ p: 2, borderTop: '1px solid #E8E7EF', flexShrink: 0 }}>
-          <button 
-            onClick={loadMoreEmails}
-            style={{
-              padding: "10px 24px",
-              backgroundColor: "#4A5C92",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "500",
-              transition: "all 0.2s ease",
-              width: '100%'
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3d4a76")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#4A5C92")}
-          >
-            Load More Emails
-          </button>
-        </M3Box>
-      )}
     </M3Box>
   );
 };

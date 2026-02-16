@@ -5,15 +5,9 @@ import {
     useEffect,
 } from "react";
 
-
-import inboxMessages from "./data/inboxMessages.json";
-import sentMessages from "./data/sentMessages.json";
-import trashMessages from "./data/trashMessages.json";
-import spamMessages from "./data/spamMessages.json";
-import draftMessages from "./data/draftMessages.json";
 import type { MessageType } from "./types/MailType";
 import { decodeBase64, getHeader, getEmailBody } from "./utils/emailUtils";
-
+import * as api from "./api/api";
 
 type EmailContextType = {
     inboxMessageList: MessageType[];
@@ -31,6 +25,12 @@ type EmailContextType = {
     decodeBase64: (str: string) => string;
     getHeader: (email: MessageType | undefined, name: string) => string;
     getEmailBody: (email: MessageType | undefined) => string;
+    // IPC Methods
+    loadEmails: (folder: string) => Promise<void>;
+    isLoading: boolean;
+    error: string | null;
+    connectToMailServer: (config: any) => Promise<void>;
+    isConnected: boolean;
 };
 
 const EmailContext = createContext<EmailContextType>({
@@ -48,6 +48,11 @@ const EmailContext = createContext<EmailContextType>({
     decodeBase64: decodeBase64,
     getHeader: getHeader,
     getEmailBody: getEmailBody,
+    loadEmails: async () => { },
+    isLoading: false,
+    error: null,
+    connectToMailServer: async () => { },
+    isConnected: false,
 });
 
 
@@ -60,17 +65,115 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [showSubNav, setShowSubNav] = useState(false);
     const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash">("inbox");
     const [selectedEmail, setSelectedEmail] = useState<MessageType | undefined>(undefined);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [isConnected, setIsConnected] = useState(false);
 
+    /**
+     * Load emails from IMAP folder
+     */
+    const loadEmails = async (folder: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const result = await api.listEmails(folder);
+            
+            // Convert IMAP format to MessageType
+            const messages = result.emails.map((email: any) => ({
+                id: email.uid?.toString() || '',
+                threadId: email.uid?.toString() || '',
+                labelIds: [folder],
+                snippet: email.text?.substring(0, 100) || '',
+                payload: {
+                    mimeType: 'text/plain',
+                    headers: [
+                        { name: 'Subject', value: email.subject || '(No Subject)' },
+                        { name: 'From', value: email.from || '' },
+                        { name: 'To', value: email.to || '' },
+                        { name: 'Date', value: new Date(email.date || Date.now()).toLocaleString() },
+                    ],
+                    body: {
+                        data: email.html || email.text || '',
+                    },
+                },
+            }));
+
+            if (folder === 'INBOX') {
+                setInboxMessages(messages);
+            } else if (folder === 'Sent') {
+                setSentMessages(messages);
+            } else if (folder === 'Drafts') {
+                setDraftMessages(messages);
+            } else if (folder === 'Spam') {
+                setSpamMessages(messages);
+            } else if (folder === 'Trash') {
+                setTrashMessages(messages);
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to load emails');
+            console.error('Error loading emails:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    /**
+     * Connect to mail server
+     */
+    const connectToMailServer = async (config: any) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await api.connectImap(config);
+            setIsConnected(true);
+            // Load inbox after connecting
+            await loadEmails('INBOX');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to connect');
+            setIsConnected(false);
+            console.error('Connection error:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Optional: Load from saved server config on mount
     useEffect(() => {
-        setInboxMessages(inboxMessages.emails as MessageType[]);
-        setSentMessages(sentMessages.emails as MessageType[]);
-        setDraftMessages(draftMessages.emails as MessageType[]);
-        setSpamMessages(spamMessages.emails as MessageType[]);
-        setTrashMessages(trashMessages.emails as MessageType[]);
+        const initializeConnection = async () => {
+            try {
+                const settings = await api.getSettings();
+                if (settings.imapConfig) {
+                    await connectToMailServer(settings.imapConfig);
+                }
+            } catch (err) {
+                console.log('No saved config, waiting for manual connection');
+            }
+        };
+        initializeConnection();
     }, []);
 
     return (
-        <EmailContext.Provider value={{ inboxMessageList, sentMessageList, draftMessageList, spamMessageList, trashMessageList, showSubNav, setShowSubNav, selectedPage, setSelectedPage, selectedEmail, setSelectedEmail, decodeBase64, getHeader, getEmailBody }}>
+        <EmailContext.Provider value={{ 
+            inboxMessageList, 
+            sentMessageList, 
+            draftMessageList, 
+            spamMessageList, 
+            trashMessageList, 
+            showSubNav, 
+            setShowSubNav, 
+            selectedPage, 
+            setSelectedPage, 
+            selectedEmail, 
+            setSelectedEmail, 
+            decodeBase64, 
+            getHeader, 
+            getEmailBody,
+            loadEmails,
+            isLoading,
+            error,
+            connectToMailServer,
+            isConnected,
+        }}>
             {children}
         </EmailContext.Provider>
     );

@@ -15,10 +15,8 @@ flex-direction: column;
 align-items: flex-start;
 gap: 15px;
 flex: 1 0 0;
-border: 2px solid #d11616;
 height: calc(100vh - 30px);
 max-width:calc(100vw-300px);
-background-color: blueviolet;
 }
 
 .nav-bar-contianer {
@@ -26,7 +24,6 @@ display: flex;
 flex-direction: column;
 align-items: center;
 align-self: stretch;
-border : 2px solid #0f0f10;
 width: 60px;
 }
 
@@ -150,7 +147,7 @@ background-color: #ffffff;
     height: 100%;
     max-height: none;
     overflow: hidden;
-    border: 1px solid #e0e0e0;
+  
 }
 
 .list-filter-container{

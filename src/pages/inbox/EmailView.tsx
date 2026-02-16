@@ -35,7 +35,7 @@ const EmailView = () => {
               </M3Box>
             ) : (
               <M3Box className="flex flex-col items-center gap-4">
-                <MdMail className="text-purple-400" style={{ fontSize: '400px' }} />
+                {/* <MdMail className="text-purple-400" style={{ fontSize: '400px' }} /> */}
                 <M3Typography variant="bodyLarge" className="text-gray-600">
                   Select an email to view its content
                 </M3Typography>
