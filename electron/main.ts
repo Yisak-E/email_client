@@ -1,18 +1,37 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
+import fs from 'fs';
 import isDev from './isDev';
-import { setupIpcHandlers } from './ipcHandlers';
+
+const diagnosticsChannel = require('node:diagnostics_channel');
+
+if (typeof (diagnosticsChannel as any).tracingChannel !== 'function') {
+  (diagnosticsChannel as any).tracingChannel = () => ({
+    hasSubscribers: false,
+    publish: () => { },
+    subscribe: () => { },
+    unsubscribe: () => { },
+    traceSync: (fn: (...args: any[]) => any, ...args: any[]) => fn(...args),
+    tracePromise: async (fn: (...args: any[]) => any, ...args: any[]) => fn(...args),
+  });
+}
 
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
+  const preloadCandidates = [
+    path.join(__dirname, 'preload.js'),
+    path.join(__dirname, 'preload.ts'),
+  ];
+  const preloadPath = preloadCandidates.find((candidate) => fs.existsSync(candidate)) || path.join(__dirname, 'preload.js');
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 800,
     minHeight: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.ts'),
+      preload: preloadPath,
       contextIsolation: true,
       //enableRemoteModule: false,
       nodeIntegration: false,
@@ -36,7 +55,7 @@ function createWindow() {
     mainWindow = null;
   });
 
-  // Setup IPC handlers
+  const { setupIpcHandlers } = require('./ipcHandlers') as typeof import('./ipcHandlers');
   setupIpcHandlers(mainWindow);
 }
 

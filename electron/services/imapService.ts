@@ -13,6 +13,32 @@ interface ImapConfig {
 
 let imap: ImapFlow | null = null;
 
+function getRecipientText(parsedTo: any): string {
+  if (!parsedTo) {
+    return '';
+  }
+
+  if (typeof parsedTo.text === 'string') {
+    return parsedTo.text;
+  }
+
+  if (Array.isArray(parsedTo)) {
+    return parsedTo
+      .map((entry) => entry?.address || entry?.name)
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  if (Array.isArray(parsedTo.value)) {
+    return parsedTo.value
+      .map((entry: any) => entry?.address || entry?.name)
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  return '';
+}
+
 export async function connectImap(config: ImapConfig) {
   try {
     imap = new ImapFlow(config);
@@ -51,8 +77,8 @@ export async function listEmails(folder: string, options?: { limit?: number; off
       const offset = options?.offset || 0;
 
       // Get message count
-      const mailbox = await imap.status(folder);
-      const totalMessages = mailbox.exists || 0;
+      const mailbox = await imap.status(folder, { messages: true });
+      const totalMessages = mailbox.messages || 0;
 
       // Fetch messages
       let messages = [];
@@ -109,7 +135,7 @@ export async function getEmail(folder: string, uid: number) {
       return {
         uid: message.uid,
         from: parsed.from?.text || '',
-        to: parsed.to?.text || '',
+        to: getRecipientText(parsed.to),
         subject: parsed.subject || '(No Subject)',
         text: parsed.text || '',
         html: parsed.html || '',
@@ -132,10 +158,7 @@ export async function deleteEmail(folder: string, uid: number) {
     const lock = await imap.getMailboxLock(folder);
 
     try {
-      // Mark as deleted
-      await imap.messageFlagsSet(uid, ['\\Deleted']);
-      // Expunge (permanently delete)
-      await imap.mailboxExpunge();
+      await imap.messageDelete(uid, { uid: true });
       console.log(`✅ Email UID ${uid} deleted from ${folder}`);
     } finally {
       lock.release();
@@ -153,12 +176,7 @@ export async function moveEmail(folder: string, uid: number, targetFolder: strin
     const lock = await imap.getMailboxLock(folder);
 
     try {
-      // Copy to target folder
-      await imap.messageCopy(uid, targetFolder);
-      // Mark original as deleted
-      await imap.messageFlagsSet(uid, ['\\Deleted']);
-      // Expunge
-      await imap.mailboxExpunge();
+      await imap.messageMove(uid, targetFolder, { uid: true });
       console.log(`✅ Email UID ${uid} moved from ${folder} to ${targetFolder}`);
     } finally {
       lock.release();

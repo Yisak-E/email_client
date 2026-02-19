@@ -17,8 +17,8 @@ type EmailContextType = {
     trashMessageList?: MessageType[];
     showSubNav: boolean;
     setShowSubNav: (show: boolean) => void;
-    selectedPage: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings";
-    setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings") => void;
+    selectedPage: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash";
+    setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash") => void;
     selectedEmail?: MessageType;
     setSelectedEmail?: (email: MessageType) => void;
     // Email utility methods
@@ -65,7 +65,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [spamMessageList, setSpamMessages] = useState<MessageType[]>([]);
     const [trashMessageList, setTrashMessages] = useState<MessageType[]>([]);
     const [showSubNav, setShowSubNav] = useState(false);
-    const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings">("inbox");
+    const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash">("inbox");
     const [selectedEmail, setSelectedEmail] = useState<MessageType | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -148,31 +148,43 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setError(err instanceof Error ? err.message : 'Failed to connect');
             setIsConnected(false);
             console.error('Connection error:', err);
+            throw err;
         } finally {
             setIsLoading(false);
         }
     };
 
     const connectWithAutoConfig = async () => {
-        const autoConfig = await api.getAutoConfig();
-        const gmailImapConfig = autoConfig?.gmail?.imap;
-        const gmailSmtpConfig = autoConfig?.gmail?.smtp;
+        setIsLoading(true);
+        setError(null);
+        try {
+            const autoConfig = await api.getAutoConfig();
+            const gmailImapConfig = autoConfig?.gmail?.imap;
+            const gmailSmtpConfig = autoConfig?.gmail?.smtp;
 
-        if (!autoConfig?.hasGmailCredentials || !gmailImapConfig?.auth?.user || !gmailImapConfig?.auth?.pass) {
-            throw new Error('Gmail credentials were not found in .env');
+            if (!autoConfig?.hasGmailCredentials || !gmailImapConfig?.auth?.user || !gmailImapConfig?.auth?.pass) {
+                throw new Error('Gmail credentials were not found in .env');
+            }
+
+            await connectToMailServer(gmailImapConfig);
+
+            if (gmailSmtpConfig?.auth?.user && gmailSmtpConfig?.auth?.pass) {
+                await api.configureSMTP(gmailSmtpConfig);
+            }
+
+            await api.saveSettings({
+                imapProvider: 'gmail',
+                imapConfig: gmailImapConfig,
+                smtpConfig: gmailSmtpConfig,
+            });
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Auto login failed';
+            setError(message);
+            setIsConnected(false);
+            throw err;
+        } finally {
+            setIsLoading(false);
         }
-
-        await connectToMailServer(gmailImapConfig);
-
-        if (gmailSmtpConfig?.auth?.user && gmailSmtpConfig?.auth?.pass) {
-            await api.configureSMTP(gmailSmtpConfig);
-        }
-
-        await api.saveSettings({
-            imapProvider: 'gmail',
-            imapConfig: gmailImapConfig,
-            smtpConfig: gmailSmtpConfig,
-        });
     };
 
     // Optional: Load from saved server config on mount

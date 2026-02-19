@@ -73,6 +73,14 @@ export interface AppConfig {
  * Parse environment variables and return typed config
  */
 function getConfig(): AppConfig {
+  const gmailImapUser = getEnvValue('VITE_GMAIL_IMAP_USER', 'GMAIL_IMAP_USER');
+  const gmailImapPass = getEnvValue('VITE_GMAIL_IMAP_PASS', 'GMAIL_IMAP_PASS');
+  const gmailSmtpUser = getEnvValue('VITE_GMAIL_SMTP_USER', 'GMAIL_SMTP_USER');
+  const gmailSmtpPass = getEnvValue('VITE_GMAIL_SMTP_PASS', 'GMAIL_SMTP_PASS');
+
+  const resolvedGmailUser = gmailImapUser || gmailSmtpUser;
+  const resolvedGmailPass = gmailImapPass || gmailSmtpPass;
+
   return {
     gmail: {
       imap: {
@@ -80,8 +88,8 @@ function getConfig(): AppConfig {
         port: parseInt(getEnvValue('VITE_GMAIL_IMAP_PORT', 'GMAIL_IMAP_PORT', '993'), 10),
         secure: parseBoolean(getEnvValue('VITE_GMAIL_IMAP_SECURE', 'GMAIL_IMAP_SECURE', 'true'), true),
         auth: {
-          user: getEnvValue('VITE_GMAIL_IMAP_USER', 'GMAIL_IMAP_USER'),
-          pass: getEnvValue('VITE_GMAIL_IMAP_PASS', 'GMAIL_IMAP_PASS'),
+          user: resolvedGmailUser,
+          pass: resolvedGmailPass,
         },
       },
       smtp: {
@@ -89,8 +97,8 @@ function getConfig(): AppConfig {
         port: parseInt(getEnvValue('VITE_GMAIL_SMTP_PORT', 'GMAIL_SMTP_PORT', '587'), 10),
         secure: parseBoolean(getEnvValue('VITE_GMAIL_SMTP_SECURE', 'GMAIL_SMTP_SECURE', 'false'), false),
         auth: {
-          user: getEnvValue('VITE_GMAIL_SMTP_USER', 'GMAIL_SMTP_USER'),
-          pass: getEnvValue('VITE_GMAIL_SMTP_PASS', 'GMAIL_SMTP_PASS'),
+          user: resolvedGmailUser,
+          pass: resolvedGmailPass,
         },
       },
     },

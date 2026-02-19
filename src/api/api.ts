@@ -19,6 +19,14 @@ import type {
   AutoConfigResult,
 } from '../types/electron';
 
+function getElectronApi() {
+  if (typeof window === 'undefined' || !window.electronAPI) {
+    throw new Error('Electron API unavailable. Start the app with `npm run dev:electron`.');
+  }
+
+  return window.electronAPI;
+}
+
 // ============ IMAP/ImapFlow Functions ============
 
 /**
@@ -28,7 +36,7 @@ import type {
  */
 export async function connectImap(config: ImapConfig) {
   try {
-    const result = await window.electronAPI.connectImap(config);
+    const result = await getElectronApi().connectImap(config);
     console.log("✅ IMAP connected:", result);
     return result;
   } catch (error) {
@@ -42,7 +50,7 @@ export async function connectImap(config: ImapConfig) {
  */
 export async function disconnectImap() {
   try {
-    await window.electronAPI.disconnectImap();
+    await getElectronApi().disconnectImap();
     console.log("✅ IMAP disconnected");
   } catch (error) {
     console.error("❌ IMAP disconnection failed:", error);
@@ -56,7 +64,7 @@ export async function disconnectImap() {
  */
 export async function listFolders() {
   try {
-    const folders = await window.electronAPI.getFolders();
+    const folders = await getElectronApi().getFolders();
     console.log("📁 Folders retrieved:", folders);
     return folders;
   } catch (error) {
@@ -76,7 +84,7 @@ export async function listEmails(
   options?: { limit?: number; offset?: number }
 ): Promise<FetchEmailsResult> {
   try {
-    const result = await window.electronAPI.fetchEmails({
+    const result = await getElectronApi().fetchEmails({
       folder,
       limit: options?.limit || 20,
       offset: options?.offset || 0,
@@ -97,7 +105,7 @@ export async function listEmails(
  */
 export async function getEmail(folder: string, uid: number): Promise<Email> {
   try {
-    const email = await window.electronAPI.getEmail(folder, uid);
+    const email = await getElectronApi().getEmail(folder, uid);
     console.log("✅ Email retrieved:", email.subject);
     return email;
   } catch (error) {
@@ -113,7 +121,7 @@ export async function getEmail(folder: string, uid: number): Promise<Email> {
  */
 export async function deleteEmail(folder: string, uid: number) {
   try {
-    await window.electronAPI.deleteEmail(folder, uid);
+    await getElectronApi().deleteEmail(folder, uid);
     console.log(`🗑️ Email UID ${uid} deleted from ${folder}`);
   } catch (error) {
     console.error("❌ Failed to delete email:", error);
@@ -129,7 +137,7 @@ export async function deleteEmail(folder: string, uid: number) {
  */
 export async function moveEmail(folder: string, uid: number, targetFolder: string) {
   try {
-    await window.electronAPI.moveEmail(folder, uid, targetFolder);
+    await getElectronApi().moveEmail(folder, uid, targetFolder);
     console.log(`📬 Email UID ${uid} moved from ${folder} to ${targetFolder}`);
   } catch (error) {
     console.error("❌ Failed to move email:", error);
@@ -145,7 +153,7 @@ export async function moveEmail(folder: string, uid: number, targetFolder: strin
  */
 export async function configureSMTP(config: SmtpConfig) {
   try {
-    const result = await window.electronAPI.configureSMTP(config);
+    const result = await getElectronApi().configureSMTP(config);
     console.log("✅ SMTP configured:", result);
     return result;
   } catch (error) {
@@ -161,7 +169,7 @@ export async function configureSMTP(config: SmtpConfig) {
  */
 export async function sendEmail(mailOptions: MailOptions): Promise<SendEmailResult> {
   try {
-    const result = await window.electronAPI.sendEmail(mailOptions);
+    const result = await getElectronApi().sendEmail(mailOptions);
     console.log("✅ Email sent:", result.messageId);
     return result;
   } catch (error) {
@@ -179,7 +187,7 @@ export async function sendEmail(mailOptions: MailOptions): Promise<SendEmailResu
  */
 export async function parseEmail(emailData: any) {
   try {
-    return await window.electronAPI.parseEmail(emailData);
+    return await getElectronApi().parseEmail(emailData);
   } catch (error) {
     console.error("❌ Failed to parse email:", error);
     throw error;
@@ -194,7 +202,7 @@ export async function parseEmail(emailData: any) {
  */
 export async function getSettings(): Promise<AppSettings> {
   try {
-    return await window.electronAPI.getSettings();
+    return await getElectronApi().getSettings();
   } catch (error) {
     console.error("❌ Failed to get settings:", error);
     throw error;
@@ -206,7 +214,7 @@ export async function getSettings(): Promise<AppSettings> {
  */
 export async function getAutoConfig(): Promise<AutoConfigResult> {
   try {
-    return await window.electronAPI.getAutoConfig();
+    return await getElectronApi().getAutoConfig();
   } catch (error) {
     console.error("❌ Failed to get auto config:", error);
     throw error;
@@ -219,7 +227,7 @@ export async function getAutoConfig(): Promise<AutoConfigResult> {
  */
 export async function saveSettings(settings: AppSettings) {
   try {
-    await window.electronAPI.saveSettings(settings);
+    await getElectronApi().saveSettings(settings);
     console.log("✅ Settings saved");
   } catch (error) {
     console.error("❌ Failed to save settings:", error);

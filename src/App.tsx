@@ -15,7 +15,7 @@ function App() {
       setSelectedPage("inbox");
     } catch (error) {
       console.error("Auto Gmail login failed:", error);
-      setSelectedPage("settings");
+      setSelectedPage("inbox");
     }
   };
   return (
@@ -79,24 +79,21 @@ function App() {
 
         {
             !isConnected ? (
-               <M3Box
-                className="segment-container"
-                maxHeight={"56px"}
-                maxWidth={"60px"}
-                sx={{ cursor: 'pointer' }}
+              <button
+                type="button"
                 onClick={handleLoginClick}
+                className="segment-container bg-transparent border-none p-0"
+                style={{ cursor: 'pointer', maxHeight: '56px', maxWidth: '60px' }}
               >
-          <M3Box className={"segment-icon-container"}  >
-             
-              <MdLogin className="icon"/>
-           
-          </M3Box>
-         <M3Box className={"flex flex-col items-top justify-center mt-1 w-full"}  >
-             <M3Typography className="segment-label" fontSize={"12px"}>
-              Settings
-            </M3Typography>
-          </M3Box>
-        </M3Box>
+                <M3Box className={"segment-icon-container"}>
+                  <MdLogin className="icon" />
+                </M3Box>
+                <M3Box className={"flex flex-col items-top justify-center mt-1 w-full"}>
+                  <M3Typography className="segment-label" fontSize={"12px"}>
+                    Login
+                  </M3Typography>
+                </M3Box>
+              </button>
             ) : (
               <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"}   >
           <M3Box className={"segment-icon-container"}   >

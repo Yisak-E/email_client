@@ -2,7 +2,6 @@ import { M3Box} from "m3r";
 import Sidebar from "../../components/layout/Sidebar";
 import { useEmailContext } from "../../EmailContext";
 import EmailView from "../inbox/EmailView";
-import Settings from "../settings/Settings";
 
 
 export default function Home() {
@@ -16,11 +15,6 @@ export default function Home() {
         {
           selectedPage === "inbox" && (
             <EmailView />
-          )
-        }
-        {
-          selectedPage === "settings" && (
-            <Settings />
           )
         }
       </M3Box>

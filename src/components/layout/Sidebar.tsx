@@ -6,7 +6,7 @@ import { IoReorderThreeSharp } from "react-icons/io5";
 
 
 const Sidebar = () => {
-  const { selectedPage, setSelectedEmail, getHeader, inboxMessageList, isConnected } = useEmailContext();
+  const { selectedPage, setSelectedEmail, getHeader, inboxMessageList, isConnected, isLoading, error } = useEmailContext();
   const [mailList, setMailList] = useState<MessageType[]>([]);
   const [filterType, setFilterType] = useState<"all" | "unread" | "read" | "starred">("all");
   const [visibleCount, setVisibleCount] = useState(10);
@@ -88,8 +88,18 @@ const Sidebar = () => {
       {!isConnected && (
         <M3Box sx={{ px: 2, py: 2, textAlign: 'center', flexShrink: 0 }}>
           <M3Typography variant="bodySmall" className="text-gray-600">
-            Go to Settings ⚙️ to configure your email account and connect to your mail server.
+            Click Login to auto-connect using Gmail IMAP + SMTP values from .env.
           </M3Typography>
+          {isLoading && (
+            <M3Typography variant="bodySmall" className="text-blue-600 mt-2 block">
+              Connecting with .env credentials...
+            </M3Typography>
+          )}
+          {!isLoading && error && (
+            <M3Typography variant="bodySmall" className="text-red-600 mt-2 block">
+              Auto login failed: {error}
+            </M3Typography>
+          )}
         </M3Box>
       )}
 

@@ -1,0 +1,1 @@
+{"root":["./electron/config.ts","./electron/ipchandlers.ts","./electron/isdev.ts","./electron/main.ts","./electron/preload.ts","./electron/services/emailparser.ts","./electron/services/imapservice.ts","./electron/services/nodemailerservice.ts"],"version":"5.9.3"}
