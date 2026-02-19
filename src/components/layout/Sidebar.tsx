@@ -6,7 +6,7 @@ import { IoReorderThreeSharp } from "react-icons/io5";
 
 
 const Sidebar = () => {
-  const { selectedPage, setSelectedEmail, getHeader, inboxMessageList, isConnected, isLoading, error } = useEmailContext();
+  const { selectedPage, setSelectedEmail, getHeader, inboxMessageList, isConnected, isLoading, error, folderStats, loadFolderStats } = useEmailContext();
   const [mailList, setMailList] = useState<MessageType[]>([]);
   const [filterType, setFilterType] = useState<"all" | "unread" | "read" | "starred">("all");
   const [visibleCount, setVisibleCount] = useState(10);
@@ -113,7 +113,7 @@ const Sidebar = () => {
 
              <M3Box className="filter-container">
               <M3Typography variant="headlineSmall" display="block">
-                {!isConnected ? "Not connected" : `Inbox (${mailList.length})`}
+                {!isConnected ? "Not connected" : `Inbox (${folderStats['INBOX'] || mailList.length})`}
               </M3Typography>
             </M3Box>
 

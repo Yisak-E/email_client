@@ -9,6 +9,10 @@ import type { MessageType } from "./types/MailType";
 import { decodeBase64, getHeader, getEmailBody } from "./utils/emailUtils";
 import * as api from "./api/api";
 
+interface FolderStats {
+    [key: string]: number;
+}
+
 type EmailContextType = {
     inboxMessageList: MessageType[];
     sentMessageList: MessageType[];
@@ -27,10 +31,14 @@ type EmailContextType = {
     getEmailBody: (email: MessageType | undefined) => string;
     // IPC Methods
     loadEmails: (folder: string) => Promise<void>;
+    refreshInbox: () => Promise<void>;
     isLoading: boolean;
     error: string | null;
     connectToMailServer: (config: any) => Promise<void>;
     isConnected: boolean;
+    // Folder management
+    folderStats: FolderStats;
+    loadFolderStats: () => Promise<void>;
 };
 
 const EmailContext = createContext<EmailContextType>({
@@ -49,10 +57,13 @@ const EmailContext = createContext<EmailContextType>({
     getHeader: getHeader,
     getEmailBody: getEmailBody,
     loadEmails: async () => { },
+    refreshInbox: async () => { },
     isLoading: false,
     error: null,
     connectToMailServer: async () => { },
     isConnected: false,
+    folderStats: {},
+    loadFolderStats: async () => { },
 });
 
 
@@ -68,6 +79,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
+    const [folderStats, setFolderStats] = useState<FolderStats>({});
 
     /**
      * Load emails from IMAP folder
@@ -142,6 +154,8 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setIsConnected(true);
             // Load inbox after connecting
             await loadEmails('INBOX');
+            // Load folder stats
+            await loadFolderStats();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to connect');
             setIsConnected(false);
@@ -149,6 +163,45 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             throw err;
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    /**
+     * Refresh inbox emails (pull latest)
+     */
+    const refreshInbox = async () => {
+        try {
+            await loadEmails('INBOX');
+            await loadFolderStats();
+            console.log('✅ Inbox refreshed');
+        } catch (err) {
+            console.error('Error refreshing inbox:', err);
+            setError(err instanceof Error ? err.message : 'Failed to refresh inbox');
+        }
+    };
+
+    /**
+     * Load email counts for all folders
+     */
+    const loadFolderStats = async () => {
+        try {
+            const folders = await api.listFolders();
+            const stats: FolderStats = {};
+
+            for (const folder of folders) {
+                try {
+                    const result = await api.listEmails(folder, { limit: 1, offset: 0 });
+                    stats[folder] = result.total;
+                } catch (err) {
+                    console.warn(`Could not load stats for folder ${folder}:`, err);
+                    stats[folder] = 0;
+                }
+            }
+
+            setFolderStats(stats);
+            console.log('📊 Folder stats loaded:', stats);
+        } catch (err) {
+            console.error('Error loading folder stats:', err);
         }
     };
 
@@ -206,10 +259,13 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             getHeader, 
             getEmailBody,
             loadEmails,
+            refreshInbox,
             isLoading,
             error,
             connectToMailServer,
             isConnected,
+            folderStats,
+            loadFolderStats,
         }}>
             {children}
         </EmailContext.Provider>

@@ -41,12 +41,19 @@ function getRecipientText(parsedTo: any): string {
 
 export async function connectImap(config: ImapConfig) {
   try {
+    // Prevent multiple connection attempts
+    if (imap) {
+      console.log('ℹ️ IMAP already connected, skipping duplicate connection');
+      return { success: true, message: 'Already connected to IMAP server' };
+    }
+
     imap = new ImapFlow(config);
     await imap.connect();
     console.log('✅ IMAP connected successfully');
     return { success: true, message: 'Connected to IMAP server' };
   } catch (error) {
     console.error('❌ IMAP connection failed:', error);
+    imap = null;  // Reset on failure
     throw error;
   }
 }
@@ -80,7 +87,7 @@ export async function listEmails(folder: string, options?: { limit?: number; off
       const mailbox = await imap.status(folder, { messages: true });
       const totalMessages = mailbox.messages || 0;
 
-      // Fetch messages
+      // Fetch messages - PERFORMANCE CRITICAL: Don't fetch source, just metadata
       let messages = [];
       if (totalMessages > 0) {
         // Fetch from the end (newest first)
@@ -88,18 +95,20 @@ export async function listEmails(folder: string, options?: { limit?: number; off
         const endSeq = Math.max(1, totalMessages - offset);
 
         for await (const message of imap.fetch(`${startSeq}:${endSeq}`, {
-          envelope: true,
-          bodyStructure: true,
-          source: true,
+          envelope: true,           // Headers: from, to, subject, date
+          internalDate: true,       // Received date
+          uid: true,                // Unique identifier (CRITICAL for operations)
+          // REMOVED: source: true  (Performance bottleneck for large mailboxes)
         })) {
           messages.push({
             uid: message.uid,
             envelope: message.envelope,
-            bodyStructure: message.bodyStructure,
-            source: message.source,
+            internalDate: message.internalDate,
           });
         }
       }
+
+      console.log(`📬 Fetched ${messages.length}/${totalMessages} emails from ${folder}`);
 
       return {
         emails: messages,
@@ -123,7 +132,8 @@ export async function getEmail(folder: string, uid: number) {
     const lock = await imap.getMailboxLock(folder);
 
     try {
-      const message = await imap.fetchOne(uid, { source: true });
+      // Use { uid: true } to specify we're using UID, not sequence number
+      const message = await imap.fetchOne(uid, { source: true, uid: true });
 
       if (!message) {
         throw new Error(`Message with UID ${uid} not found`);

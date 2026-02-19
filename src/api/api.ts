@@ -83,11 +83,9 @@ export async function listEmails(
   options?: { limit?: number; offset?: number }
 ): Promise<FetchEmailsResult> {
   try {
-    const result = await getElectronApi().fetchEmails({
-      folder,
-      limit: options?.limit || 20,
-      offset: options?.offset || 0,
-    });
+    const limit = options?.limit || 20;
+    const offset = options?.offset || 0;
+    const result = await getElectronApi().fetchEmails(folder, limit, offset);
     console.log(`📧 Emails from ${folder}:`, result.emails.length);
     return result;
   } catch (error) {

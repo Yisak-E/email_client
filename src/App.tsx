@@ -1,127 +1,37 @@
 
-import { M3Avatar, M3Box, M3IconButton, M3Stack, M3Typography} from "m3r";
-import Home from "./pages/home/Home";
-import { MdColorLens, MdDoorbell, MdOutlineCalendarToday, MdOutlineCreate, MdOutlineEmail, MdOutlinePerson, MdSettings, MdSunny } from "react-icons/md";
-import { useEmailContext } from "./EmailContext";
+/**
+ * APP.TSX - Root React Component (Renderer Layer)
+ * 
+ * Main application layout and routing
+ * 
+ * 3-Layer Architecture:
+ * - Main Process (Backend): electron/main.ts + services
+ * - Preload/IPC Bridge: electron/preload.ts
+ * - Renderer (Frontend): React app in src/
+ */
 
+import { FC } from 'react';
+import { M3Box, M3Stack } from 'm3r';
+import { EmailProvider } from './EmailContext';
+import Home from './pages/home/Home';
+import './App.css';
 
-
-function App() {
-  const { isConnected } = useEmailContext();
+/**
+ * Main App Component
+ * - Wraps entire app with EmailContext for state management
+ * - Provides main layout structure
+ * - Routes to Home page
+ */
+const App: FC = () => {
   return (
-   <M3Box  className="main-container">
-      <M3Stack className="nav-bar-contianer"  >
-      <M3Box className="bg-[#dbe1ff] rounded-[16px] max-w-[56px]  " >
-        <M3IconButton  className={" max-w-[56px] border-1 border-red-500"} >
-          <MdOutlineCreate className="text-black w-[24px] h-[24px] "/>
-        </M3IconButton>
-      </M3Box>
-      
-      <M3Stack className="nav-bar-contianer2">
-        <M3Box className="segment-container"  >
-          
-          <M3Box className={"segment-icon-container"} >
-              <MdOutlineEmail className="icon"/>
-          </M3Box>
-         
-             <M3Typography className="segment-label" fontSize={"12px"}>
-              Email
-            </M3Typography>
-         
-        </M3Box>
-         <M3Box className="segment-container"    >
-          <M3Box className={"segment-icon-container"}>
-              <MdOutlineCalendarToday  className="icon"/> 
-          </M3Box>
-
-           <M3Typography className="segment-label"  fontSize={"12px"}>
-              Calendar
-            </M3Typography>
-         
-        </M3Box>
-         <M3Box className="segment-container " >
-            <M3Box className={"segment-icon-container"}>
-              <MdOutlinePerson className="icon"/>
-            </M3Box>
-            <M3Typography className="segment-label" fontSize={"12px"}>
-              Contacts
-            </M3Typography>
-        
-        </M3Box>
-         
-      </M3Stack>
-      <M3Stack className="nav-bar-contianer3">
-      <M3Box>
-        <MdSunny className="icon border border-gray-300"/>
-      </M3Box>
-       <M3Box>
-        <MdDoorbell className="icon border border-gray-300" />
-        </M3Box>
-       <M3Box>
-        <MdColorLens className="icon border border-gray-300"/>
-      </M3Box>
-
-       <M3Box>
-        <MdSettings className="icon border border-gray-300"/>
-      </M3Box>
-
-
-
-        {
-            isConnected ? (
-              <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"}   >
-          <M3Box className={"segment-icon-container"}   >
-              <M3Avatar 
-                sx={{ 
-                  width: 40, 
-                  height: 40,
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  fontWeight: 'bold'
-                }}
-                alt="Connected"
-              >
-                ✓
-              </M3Avatar>
-            </M3Box>
-          <M3Box className={"flex flex-col items-top justify-center mt-1 w-full"}  >
-              <M3Typography className="segment-label" fontSize={"12px"}>
-              Online
-            </M3Typography>
-          </M3Box>
-        </M3Box>
-            ) : null
-        }
-      </M3Stack>
-     
-    </M3Stack>
-     <M3Box className="mini-main-container  " >
-     {/* nav bar top most */}
-      <M3Box className="top-nav-bar-container" >
-       
-      
-          <M3Box className="logo-container"  >
-            NanoVoltz
-          </M3Box>
-          {/* global search */}
-          <M3Box className="global-search-container" >
-            <M3Typography className="global-search-placeholder" >
-              Search Mail
-            </M3Typography>
-          </M3Box>
-          </M3Box>
- 
-          {/* main content container */}
+    <EmailProvider>
+      <M3Box className="main-container">
+        <M3Stack className="app-layout">
           <Home />
-
-          </M3Box>
-
-     
-
-    
-    
-   </M3Box>
+        </M3Stack>
+      </M3Box>
+    </EmailProvider>
   );
-}
+};
 
 export default App;

@@ -7,6 +7,25 @@ import { getEmailConfig } from './config';
 const settings: Record<string, any> = {};
 
 export function setupIpcHandlers(mainWindow: BrowserWindow | null) {
+  // ============ Window Controls ============
+  ipcMain.on('window:minimize', () => {
+    if (mainWindow) mainWindow.minimize();
+  });
+
+  ipcMain.on('window:maximize', () => {
+    if (mainWindow) {
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize();
+      } else {
+        mainWindow.maximize();
+      }
+    }
+  });
+
+  ipcMain.on('window:close', () => {
+    if (mainWindow) mainWindow.close();
+  });
+
   // ============ IMAP Handlers ============
   ipcMain.handle('imap:connect', async (event, config) => {
     try {

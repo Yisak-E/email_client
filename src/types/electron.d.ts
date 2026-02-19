@@ -1,34 +1,34 @@
 /**
  * Global type definitions for window.electronAPI
  * This file ensures TypeScript is aware of the IPC API exposed by the preload script
+ * Must match the ElectronAPI interface in electron/preload.ts
  */
 
 declare global {
   interface Window {
     electronAPI: {
-      // IMAP/Fetch Email functions
+      // Window Controls
+      minimize: () => void;
+      maximize: () => void;
+      close: () => void;
+      
+      // IMAP Functions
       connectImap: (config: ImapConfig) => Promise<{ success: boolean; message: string }>;
       disconnectImap: () => Promise<void>;
-      listFolders: () => Promise<string[]>;
-      fetchEmails: (options?: FetchEmailsOptions) => Promise<FetchEmailsResult>;
+      getFolders: () => Promise<string[]>;
+      fetchEmails: (folder: string, limit?: number, offset?: number) => Promise<FetchEmailsResult>;
       getEmail: (folder: string, uid: number) => Promise<Email>;
-      deleteEmail: (folder: string, uid: number) => Promise<void>;
-      moveEmail: (folder: string, uid: number, targetFolder: string) => Promise<void>;
+      deleteEmail: (folder: string, uid: number) => Promise<{ success: boolean }>;
+      moveEmail: (folder: string, uid: number, targetFolder: string) => Promise<{ success: boolean }>;
       
-      // SMTP/Nodemailer functions
-      configureSMTP: (config: SmtpConfig) => Promise<void>;
+      // SMTP Functions
+      configureSMTP: (config: SmtpConfig) => Promise<{ success: boolean; message: string }>;
       sendEmail: (mailOptions: MailOptions) => Promise<SendEmailResult>;
-      
-      // Utility functions
-      parseEmail: (emailData: any) => Promise<ParsedEmail>;
       
       // Settings
       getSettings: () => Promise<AppSettings>;
       getAutoConfig: () => Promise<AutoConfigResult>;
-      saveSettings: (settings: AppSettings) => Promise<void>;
-      
-      // Folder operations
-      getFolders: () => Promise<string[]>;
+      saveSettings: (settings: AppSettings) => Promise<{ success: boolean }>;
     };
   }
 }

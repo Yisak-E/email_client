@@ -1,16 +1,21 @@
 /**
  * PRELOAD SCRIPT - IPC Bridge Layer (3-Layer Architecture)
  * 
- * Secure Communication Bridge between Main Process and Renderer
- * - Enforces contextIsolation: true
- * - Only exposes whitelisted APIs via contextBridge
+ * Secure Communication Bridge between Main Process (Backend) and Renderer (Frontend)
+ * - Enforces contextIsolation: true (secure)
+ * - Enforces sandbox: true (secure)
+ * - Only exposes whitelisted APIs
  * - Prevents access to Node.js internals from renderer
+ * 
+ * Layer Structure:
+ * [Main Process] ←→ [Preload Script] ←→ [Renderer/React]
+ *  (Backend)         (IPC Bridge)       (Frontend)
  */
 
 import { contextBridge, ipcRenderer } from 'electron';
 
 // ============================================================
-// Type Definitions - All Exposed to Renderer
+// TYPE DEFINITIONS - API Contract
 // ============================================================
 
 export interface ImapConfig {
@@ -86,25 +91,25 @@ export interface SendEmailResult {
 }
 
 // ============================================================
-// ElectronAPI - Complete Whitelist of IPC Methods
+// ELECTRON API - Main Process Interface
 // ============================================================
 
 export interface ElectronAPI {
-  // Window Controls
-  minimize: () => void;
-  maximize: () => void;
-  close: () => void;
+  // Window Controls (Renderer → Main)
+  minimizeWindow: () => void;
+  maximizeWindow: () => void;
+  closeWindow: () => void;
   
-  // IMAP Functions
+  // IMAP Email Functions
   connectImap: (config: ImapConfig) => Promise<{ success: boolean; message: string }>;
   disconnectImap: () => Promise<void>;
   getFolders: () => Promise<string[]>;
-  fetchEmails: (folder: string, limit?: number, offset?: number) => Promise<FetchEmailsResult>;
+  fetchEmails: (options: { folder: string; limit?: number; offset?: number }) => Promise<FetchEmailsResult>;
   getEmail: (folder: string, uid: number) => Promise<Email>;
   deleteEmail: (folder: string, uid: number) => Promise<{ success: boolean }>;
   moveEmail: (folder: string, uid: number, targetFolder: string) => Promise<{ success: boolean }>;
   
-  // SMTP Functions
+  // SMTP Email Functions
   configureSMTP: (config: SmtpConfig) => Promise<{ success: boolean; message: string }>;
   sendEmail: (mailOptions: MailOptions) => Promise<SendEmailResult>;
   
@@ -115,38 +120,57 @@ export interface ElectronAPI {
 }
 
 // ============================================================
-// Expose Whitelisted API to Renderer via contextBridge
+// IPC BRIDGE IMPLEMENTATION
 // ============================================================
 
-contextBridge.exposeInMainWorld('electronAPI', {
+const electronAPI: ElectronAPI = {
   // Window Controls
-  minimize: () => ipcRenderer.send('window:minimize'),
-  maximize: () => ipcRenderer.send('window:maximize'),
-  close: () => ipcRenderer.send('window:close'),
+  minimizeWindow: () => ipcRenderer.send('window:minimize'),
+  maximizeWindow: () => ipcRenderer.send('window:maximize'),
+  closeWindow: () => ipcRenderer.send('window:close'),
   
   // IMAP Functions
   connectImap: (config: ImapConfig) => ipcRenderer.invoke('imap:connect', config),
   disconnectImap: () => ipcRenderer.invoke('imap:disconnect'),
   getFolders: () => ipcRenderer.invoke('imap:listFolders'),
-  fetchEmails: (folder: string, limit?: number, offset?: number) =>
-    ipcRenderer.invoke('imap:listEmails', folder, { limit: limit || 20, offset: offset || 0 }),
-  getEmail: (folder: string, uid: number) => ipcRenderer.invoke('imap:getEmail', folder, uid),
-  deleteEmail: (folder: string, uid: number) => ipcRenderer.invoke('imap:deleteEmail', folder, uid),
+  
+  fetchEmails: (options: { folder: string; limit?: number; offset?: number }) =>
+    ipcRenderer.invoke('imap:listEmails', options.folder, {
+      limit: options.limit || 20,
+      offset: options.offset || 0,
+    }),
+  
+  getEmail: (folder: string, uid: number) =>
+    ipcRenderer.invoke('imap:getEmail', folder, uid),
+  
+  deleteEmail: (folder: string, uid: number) =>
+    ipcRenderer.invoke('imap:deleteEmail', folder, uid),
+  
   moveEmail: (folder: string, uid: number, targetFolder: string) =>
     ipcRenderer.invoke('imap:moveEmail', folder, uid, targetFolder),
   
   // SMTP Functions
-  configureSMTP: (config: SmtpConfig) => ipcRenderer.invoke('mail:configureSMTP', config),
-  sendEmail: (mailOptions: MailOptions) => ipcRenderer.invoke('mail:sendEmail', mailOptions),
+  configureSMTP: (config: SmtpConfig) =>
+    ipcRenderer.invoke('mail:configureSMTP', config),
   
-  // Settings Management
+  sendEmail: (mailOptions: MailOptions) =>
+    ipcRenderer.invoke('mail:sendEmail', mailOptions),
+  
+  // Settings
   getAutoConfig: () => ipcRenderer.invoke('settings:getAutoConfig'),
   getSettings: () => ipcRenderer.invoke('settings:getSettings'),
-  saveSettings: (settings: AppSettings) => ipcRenderer.invoke('settings:saveSettings', settings),
-} as ElectronAPI);
+  saveSettings: (settings: AppSettings) =>
+    ipcRenderer.invoke('settings:saveSettings', settings),
+};
 
 // ============================================================
-// TypeScript Global Declaration for Window.electronAPI
+// EXPOSE API TO RENDERER (contextBridge)
+// ============================================================
+
+contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+
+// ============================================================
+// TYPE DECLARATIONS FOR WINDOW
 // ============================================================
 
 declare global {
@@ -154,3 +178,10 @@ declare global {
     electronAPI: ElectronAPI;
   }
 }
+
+// ============================================================
+// MESSAGE LOGGING (Development)
+// ============================================================
+
+console.log('[Preload] IPC Bridge initialized');
+console.log('[Preload] electronAPI exposed to renderer');
