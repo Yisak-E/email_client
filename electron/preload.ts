@@ -63,6 +63,7 @@ interface EmailAPI {
   
   // Settings
   getSettings: () => Promise<Record<string, any>>;
+  getAutoConfig: () => Promise<any>;
   saveSettings: (settings: Record<string, any>) => Promise<void>;
   
   // Folder operations
@@ -95,6 +96,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Settings
   getSettings: () => ipcRenderer.invoke('settings:getSettings'),
+  getAutoConfig: () => ipcRenderer.invoke('settings:getAutoConfig'),
   saveSettings: (settings: Record<string, any>) => ipcRenderer.invoke('settings:saveSettings', settings),
   
   // Folder operations stub

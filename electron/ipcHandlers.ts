@@ -2,6 +2,7 @@ import { ipcMain, BrowserWindow } from 'electron';
 import * as imapService from './services/imapService';
 import * as nodemailerService from './services/nodemailerService';
 import * as emailParser from './services/emailParser';
+import { getEmailConfig } from './config';
 
 const settings: Record<string, any> = {};
 
@@ -95,6 +96,20 @@ export function setupIpcHandlers(mainWindow: BrowserWindow | null) {
   // ============ Settings Handlers ============
   ipcMain.handle('settings:getSettings', async () => {
     return settings;
+  });
+
+  ipcMain.handle('settings:getAutoConfig', async () => {
+    const config = getEmailConfig();
+    const hasGmailCredentials = Boolean(
+      config.gmail.imap.auth.user &&
+      config.gmail.imap.auth.pass
+    );
+
+    return {
+      provider: 'gmail',
+      gmail: config.gmail,
+      hasGmailCredentials,
+    };
   });
 
   ipcMain.handle('settings:saveSettings', async (event, newSettings) => {

@@ -16,6 +16,7 @@ import type {
   Email,
   SendEmailResult,
   AppSettings,
+  AutoConfigResult,
 } from '../types/electron';
 
 // ============ IMAP/ImapFlow Functions ============
@@ -196,6 +197,18 @@ export async function getSettings(): Promise<AppSettings> {
     return await window.electronAPI.getSettings();
   } catch (error) {
     console.error("❌ Failed to get settings:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get auto email configuration from Electron main process (.env-backed)
+ */
+export async function getAutoConfig(): Promise<AutoConfigResult> {
+  try {
+    return await window.electronAPI.getAutoConfig();
+  } catch (error) {
+    console.error("❌ Failed to get auto config:", error);
     throw error;
   }
 }

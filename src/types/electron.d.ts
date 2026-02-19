@@ -24,6 +24,7 @@ declare global {
       
       // Settings
       getSettings: () => Promise<AppSettings>;
+      getAutoConfig: () => Promise<AutoConfigResult>;
       saveSettings: (settings: AppSettings) => Promise<void>;
       
       // Folder operations
@@ -167,6 +168,15 @@ export interface AppSettings {
   autoFetchInterval?: number;  // milliseconds
   prefetchSize?: number;
   enableNotifications?: boolean;
+}
+
+export interface AutoConfigResult {
+  provider: 'gmail' | 'outlook';
+  hasGmailCredentials: boolean;
+  gmail: {
+    imap: ImapConfig;
+    smtp: SmtpConfig;
+  };
 }
 
 export {};

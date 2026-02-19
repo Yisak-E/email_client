@@ -7,7 +7,17 @@ import { useEmailContext } from "./EmailContext";
 
 
 function App() {
-  const { isConnected, setSelectedPage } = useEmailContext();
+  const { isConnected, setSelectedPage, connectWithAutoConfig } = useEmailContext();
+
+  const handleLoginClick = async () => {
+    try {
+      await connectWithAutoConfig();
+      setSelectedPage("inbox");
+    } catch (error) {
+      console.error("Auto Gmail login failed:", error);
+      setSelectedPage("settings");
+    }
+  };
   return (
    <M3Box  className="main-container">
       <M3Stack className="nav-bar-contianer"  >
@@ -74,7 +84,7 @@ function App() {
                 maxHeight={"56px"}
                 maxWidth={"60px"}
                 sx={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPage("settings")}
+                onClick={handleLoginClick}
               >
           <M3Box className={"segment-icon-container"}  >
              

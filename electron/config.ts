@@ -6,10 +6,31 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 
-// Load .env file
-const envPath = path.join(__dirname, '../.env');
-if (fs.existsSync(envPath)) {
-  dotenv.config({ path: envPath });
+function loadEnvFile() {
+  const envPaths = [
+    path.join(process.cwd(), '.env'),
+    path.join(__dirname, '../.env'),
+    path.join(__dirname, '../../.env'),
+  ];
+
+  const existingPath = envPaths.find((candidate) => fs.existsSync(candidate));
+  if (existingPath) {
+    dotenv.config({ path: existingPath });
+  }
+}
+
+loadEnvFile();
+
+function parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  return value.trim().toLowerCase() === 'true';
+}
+
+function getEnvValue(primaryKey: string, fallbackKey: string, defaultValue = ''): string {
+  return process.env[primaryKey] || process.env[fallbackKey] || defaultValue;
 }
 
 export interface ImapCredentials {
@@ -55,48 +76,48 @@ function getConfig(): AppConfig {
   return {
     gmail: {
       imap: {
-        host: process.env.VITE_GMAIL_IMAP_HOST || 'imap.gmail.com',
-        port: parseInt(process.env.VITE_GMAIL_IMAP_PORT || '993', 10),
-        secure: process.env.VITE_GMAIL_IMAP_SECURE === 'true',
+        host: getEnvValue('VITE_GMAIL_IMAP_HOST', 'GMAIL_IMAP_HOST', 'imap.gmail.com'),
+        port: parseInt(getEnvValue('VITE_GMAIL_IMAP_PORT', 'GMAIL_IMAP_PORT', '993'), 10),
+        secure: parseBoolean(getEnvValue('VITE_GMAIL_IMAP_SECURE', 'GMAIL_IMAP_SECURE', 'true'), true),
         auth: {
-          user: process.env.VITE_GMAIL_IMAP_USER || '',
-          pass: process.env.VITE_GMAIL_IMAP_PASS || '',
+          user: getEnvValue('VITE_GMAIL_IMAP_USER', 'GMAIL_IMAP_USER'),
+          pass: getEnvValue('VITE_GMAIL_IMAP_PASS', 'GMAIL_IMAP_PASS'),
         },
       },
       smtp: {
-        host: process.env.VITE_GMAIL_SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.VITE_GMAIL_SMTP_PORT || '587', 10),
-        secure: process.env.VITE_GMAIL_SMTP_SECURE === 'false',
+        host: getEnvValue('VITE_GMAIL_SMTP_HOST', 'GMAIL_SMTP_HOST', 'smtp.gmail.com'),
+        port: parseInt(getEnvValue('VITE_GMAIL_SMTP_PORT', 'GMAIL_SMTP_PORT', '587'), 10),
+        secure: parseBoolean(getEnvValue('VITE_GMAIL_SMTP_SECURE', 'GMAIL_SMTP_SECURE', 'false'), false),
         auth: {
-          user: process.env.VITE_GMAIL_SMTP_USER || '',
-          pass: process.env.VITE_GMAIL_SMTP_PASS || '',
+          user: getEnvValue('VITE_GMAIL_SMTP_USER', 'GMAIL_SMTP_USER'),
+          pass: getEnvValue('VITE_GMAIL_SMTP_PASS', 'GMAIL_SMTP_PASS'),
         },
       },
     },
     outlook: {
       imap: {
-        host: process.env.VITE_OUTLOOK_IMAP_HOST || 'imap-mail.outlook.com',
-        port: parseInt(process.env.VITE_OUTLOOK_IMAP_PORT || '993', 10),
-        secure: process.env.VITE_OUTLOOK_IMAP_SECURE === 'true',
+        host: getEnvValue('VITE_OUTLOOK_IMAP_HOST', 'OUTLOOK_IMAP_HOST', 'imap-mail.outlook.com'),
+        port: parseInt(getEnvValue('VITE_OUTLOOK_IMAP_PORT', 'OUTLOOK_IMAP_PORT', '993'), 10),
+        secure: parseBoolean(getEnvValue('VITE_OUTLOOK_IMAP_SECURE', 'OUTLOOK_IMAP_SECURE', 'true'), true),
         auth: {
-          user: process.env.VITE_OUTLOOK_IMAP_USER || '',
-          pass: process.env.VITE_OUTLOOK_IMAP_PASS || '',
+          user: getEnvValue('VITE_OUTLOOK_IMAP_USER', 'OUTLOOK_IMAP_USER'),
+          pass: getEnvValue('VITE_OUTLOOK_IMAP_PASS', 'OUTLOOK_IMAP_PASS'),
         },
       },
       smtp: {
-        host: process.env.VITE_OUTLOOK_SMTP_HOST || 'smtp-mail.outlook.com',
-        port: parseInt(process.env.VITE_OUTLOOK_SMTP_PORT || '587', 10),
-        secure: process.env.VITE_OUTLOOK_SMTP_SECURE === 'false',
+        host: getEnvValue('VITE_OUTLOOK_SMTP_HOST', 'OUTLOOK_SMTP_HOST', 'smtp-mail.outlook.com'),
+        port: parseInt(getEnvValue('VITE_OUTLOOK_SMTP_PORT', 'OUTLOOK_SMTP_PORT', '587'), 10),
+        secure: parseBoolean(getEnvValue('VITE_OUTLOOK_SMTP_SECURE', 'OUTLOOK_SMTP_SECURE', 'false'), false),
         auth: {
-          user: process.env.VITE_OUTLOOK_SMTP_USER || '',
-          pass: process.env.VITE_OUTLOOK_SMTP_PASS || '',
+          user: getEnvValue('VITE_OUTLOOK_SMTP_USER', 'OUTLOOK_SMTP_USER'),
+          pass: getEnvValue('VITE_OUTLOOK_SMTP_PASS', 'OUTLOOK_SMTP_PASS'),
         },
       },
     },
     app: {
-      name: process.env.VITE_APP_NAME || 'Email Client',
-      version: process.env.VITE_APP_VERSION || '1.0.0',
-      logLevel: process.env.VITE_LOG_LEVEL || 'info',
+      name: getEnvValue('VITE_APP_NAME', 'APP_NAME', 'Email Client'),
+      version: getEnvValue('VITE_APP_VERSION', 'APP_VERSION', '1.0.0'),
+      logLevel: getEnvValue('VITE_LOG_LEVEL', 'LOG_LEVEL', 'info'),
     },
   };
 }

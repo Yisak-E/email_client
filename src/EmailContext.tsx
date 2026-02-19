@@ -30,6 +30,7 @@ type EmailContextType = {
     isLoading: boolean;
     error: string | null;
     connectToMailServer: (config: any) => Promise<void>;
+    connectWithAutoConfig: () => Promise<void>;
     isConnected: boolean;
 };
 
@@ -52,6 +53,7 @@ const EmailContext = createContext<EmailContextType>({
     isLoading: false,
     error: null,
     connectToMailServer: async () => { },
+    connectWithAutoConfig: async () => { },
     isConnected: false,
 });
 
@@ -151,6 +153,28 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
     };
 
+    const connectWithAutoConfig = async () => {
+        const autoConfig = await api.getAutoConfig();
+        const gmailImapConfig = autoConfig?.gmail?.imap;
+        const gmailSmtpConfig = autoConfig?.gmail?.smtp;
+
+        if (!autoConfig?.hasGmailCredentials || !gmailImapConfig?.auth?.user || !gmailImapConfig?.auth?.pass) {
+            throw new Error('Gmail credentials were not found in .env');
+        }
+
+        await connectToMailServer(gmailImapConfig);
+
+        if (gmailSmtpConfig?.auth?.user && gmailSmtpConfig?.auth?.pass) {
+            await api.configureSMTP(gmailSmtpConfig);
+        }
+
+        await api.saveSettings({
+            imapProvider: 'gmail',
+            imapConfig: gmailImapConfig,
+            smtpConfig: gmailSmtpConfig,
+        });
+    };
+
     // Optional: Load from saved server config on mount
     useEffect(() => {
         const initializeConnection = async () => {
@@ -158,7 +182,10 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const settings = await api.getSettings();
                 if (settings.imapConfig) {
                     await connectToMailServer(settings.imapConfig);
+                    return;
                 }
+
+                await connectWithAutoConfig();
             } catch (err) {
                 console.log('No saved config, waiting for manual connection');
             }
@@ -186,6 +213,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             isLoading,
             error,
             connectToMailServer,
+            connectWithAutoConfig,
             isConnected,
         }}>
             {children}
