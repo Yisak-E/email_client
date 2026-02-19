@@ -1,49 +1,33 @@
 // api.ts
-/* 
+/** 
   IPC-based Email API using Electron's contextBridge
   Uses ImapFlow (fetching) and Nodemailer (sending)
+  
+  This file provides a typed wrapper around window.electronAPI
+  For type definitions, see src/types/electron.d.ts
 */
 
-export interface ImapConfig {
-  host: string;
-  port: number;
-  secure: boolean;
-  auth: {
-    user: string;
-    pass: string;
-  };
-}
-
-export interface SmtpConfig {
-  host: string;
-  port: number;
-  secure: boolean;
-  auth: {
-    user: string;
-    pass: string;
-  };
-  from?: string;
-}
-
-export interface MailOptions {
-  to: string | string[];
-  cc?: string | string[];
-  bcc?: string | string[];
-  subject: string;
-  text?: string;
-  html?: string;
-  attachments?: any[];
-  replyTo?: string;
-}
+import type {
+  ImapConfig,
+  SmtpConfig,
+  MailOptions,
+  FetchEmailsOptions,
+  FetchEmailsResult,
+  Email,
+  SendEmailResult,
+  AppSettings,
+} from '../types/electron';
 
 // ============ IMAP/ImapFlow Functions ============
 
 /**
  * Connect to IMAP server
+ * @param config IMAP server configuration
+ * @returns Connection result
  */
 export async function connectImap(config: ImapConfig) {
   try {
-    const result = await window.emailAPI.connectImap(config);
+    const result = await window.electronAPI.connectImap(config);
     console.log("✅ IMAP connected:", result);
     return result;
   } catch (error) {
@@ -57,7 +41,7 @@ export async function connectImap(config: ImapConfig) {
  */
 export async function disconnectImap() {
   try {
-    await window.emailAPI.disconnectImap();
+    await window.electronAPI.disconnectImap();
     console.log("✅ IMAP disconnected");
   } catch (error) {
     console.error("❌ IMAP disconnection failed:", error);
@@ -67,10 +51,11 @@ export async function disconnectImap() {
 
 /**
  * List all folders from IMAP server
+ * @returns Array of folder names
  */
 export async function listFolders() {
   try {
-    const folders = await window.emailAPI.listFolders();
+    const folders = await window.electronAPI.getFolders();
     console.log("📁 Folders retrieved:", folders);
     return folders;
   } catch (error) {
@@ -81,10 +66,20 @@ export async function listFolders() {
 
 /**
  * List emails from a specific folder
+ * @param folder Folder name (default: INBOX)
+ * @param options Fetch options (limit, offset)
+ * @returns Emails and metadata
  */
-export async function listEmails(folder: string, options?: { limit?: number; offset?: number }) {
+export async function listEmails(
+  folder: string = 'INBOX',
+  options?: { limit?: number; offset?: number }
+): Promise<FetchEmailsResult> {
   try {
-    const result = await window.emailAPI.listEmails(folder, options);
+    const result = await window.electronAPI.fetchEmails({
+      folder,
+      limit: options?.limit || 20,
+      offset: options?.offset || 0,
+    });
     console.log(`📧 Emails from ${folder}:`, result.emails.length);
     return result;
   } catch (error) {
@@ -95,10 +90,13 @@ export async function listEmails(folder: string, options?: { limit?: number; off
 
 /**
  * Get a single email with full content
+ * @param folder Folder name
+ * @param uid Email UID
+ * @returns Full email with parsed content
  */
-export async function getEmail(folder: string, uid: number) {
+export async function getEmail(folder: string, uid: number): Promise<Email> {
   try {
-    const email = await window.emailAPI.getEmail(folder, uid);
+    const email = await window.electronAPI.getEmail(folder, uid);
     console.log("✅ Email retrieved:", email.subject);
     return email;
   } catch (error) {
@@ -109,10 +107,12 @@ export async function getEmail(folder: string, uid: number) {
 
 /**
  * Delete an email
+ * @param folder Folder name
+ * @param uid Email UID
  */
 export async function deleteEmail(folder: string, uid: number) {
   try {
-    await window.emailAPI.deleteEmail(folder, uid);
+    await window.electronAPI.deleteEmail(folder, uid);
     console.log(`🗑️ Email UID ${uid} deleted from ${folder}`);
   } catch (error) {
     console.error("❌ Failed to delete email:", error);
@@ -122,10 +122,13 @@ export async function deleteEmail(folder: string, uid: number) {
 
 /**
  * Move email to another folder
+ * @param folder Source folder name
+ * @param uid Email UID
+ * @param targetFolder Destination folder name
  */
 export async function moveEmail(folder: string, uid: number, targetFolder: string) {
   try {
-    await window.emailAPI.moveEmail(folder, uid, targetFolder);
+    await window.electronAPI.moveEmail(folder, uid, targetFolder);
     console.log(`📬 Email UID ${uid} moved from ${folder} to ${targetFolder}`);
   } catch (error) {
     console.error("❌ Failed to move email:", error);
@@ -137,10 +140,11 @@ export async function moveEmail(folder: string, uid: number, targetFolder: strin
 
 /**
  * Configure SMTP server
+ * @param config SMTP server configuration
  */
 export async function configureSMTP(config: SmtpConfig) {
   try {
-    const result = await window.emailAPI.configureSMTP(config);
+    const result = await window.electronAPI.configureSMTP(config);
     console.log("✅ SMTP configured:", result);
     return result;
   } catch (error) {
@@ -151,10 +155,12 @@ export async function configureSMTP(config: SmtpConfig) {
 
 /**
  * Send an email using configured SMTP
+ * @param mailOptions Email options including to, subject, content, etc.
+ * @returns Send result with message ID
  */
-export async function sendEmail(mailOptions: MailOptions) {
+export async function sendEmail(mailOptions: MailOptions): Promise<SendEmailResult> {
   try {
-    const result = await window.emailAPI.sendEmail(mailOptions);
+    const result = await window.electronAPI.sendEmail(mailOptions);
     console.log("✅ Email sent:", result.messageId);
     return result;
   } catch (error) {
@@ -167,10 +173,12 @@ export async function sendEmail(mailOptions: MailOptions) {
 
 /**
  * Parse email data
+ * @param emailData Raw email data
+ * @returns Parsed email object
  */
 export async function parseEmail(emailData: any) {
   try {
-    return await window.emailAPI.parseEmail(emailData);
+    return await window.electronAPI.parseEmail(emailData);
   } catch (error) {
     console.error("❌ Failed to parse email:", error);
     throw error;
@@ -180,11 +188,12 @@ export async function parseEmail(emailData: any) {
 // ============ Settings Functions ============
 
 /**
- * Get saved settings
+ * Get saved application settings
+ * @returns Application settings object
  */
-export async function getSettings() {
+export async function getSettings(): Promise<AppSettings> {
   try {
-    return await window.emailAPI.getSettings();
+    return await window.electronAPI.getSettings();
   } catch (error) {
     console.error("❌ Failed to get settings:", error);
     throw error;
@@ -192,14 +201,40 @@ export async function getSettings() {
 }
 
 /**
- * Save settings
+ * Save application settings
+ * @param settings Settings to save
  */
-export async function saveSettings(settings: any) {
+export async function saveSettings(settings: AppSettings) {
   try {
-    await window.emailAPI.saveSettings(settings);
+    await window.electronAPI.saveSettings(settings);
     console.log("✅ Settings saved");
   } catch (error) {
     console.error("❌ Failed to save settings:", error);
     throw error;
   }
+}
+
+// ============ Convenience Functions ============
+
+/**
+ * Fetch emails from INBOX
+ * @param limit Number of emails to fetch
+ * @returns Emails result
+ */
+export async function fetchInboxEmails(limit: number = 20): Promise<FetchEmailsResult> {
+  return listEmails('INBOX', { limit });
+}
+
+/**
+ * Fetch emails from a provider's default folder
+ * Useful for Gmail, Outlook, etc.
+ * @param folder Folder name
+ * @param limit Number of emails
+ * @returns Emails result
+ */
+export async function fetchEmails(
+  folder: string = 'INBOX',
+  limit: number = 20
+): Promise<FetchEmailsResult> {
+  return listEmails(folder, { limit });
 }

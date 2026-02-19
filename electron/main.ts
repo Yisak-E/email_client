@@ -9,12 +9,17 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
+    minWidth: 800,
+    minHeight: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.ts'),
       contextIsolation: true,
-      enableRemoteModule: false,
+      //enableRemoteModule: false,
       nodeIntegration: false,
+      // Security: Sandbox the renderer process
+      sandbox: true,
     },
+    icon: isDev ? undefined : path.join(__dirname, '../resources/icon.png'),
   });
 
   const startUrl = isDev
@@ -35,15 +40,18 @@ function createWindow() {
   setupIpcHandlers(mainWindow);
 }
 
+// App event handlers
 app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
+  // On macOS, keep the app running until explicitly quit
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
 app.on('activate', () => {
+  // On macOS, re-create window when dock icon is clicked
   if (mainWindow === null) {
     createWindow();
   }
@@ -53,3 +61,6 @@ app.on('activate', () => {
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
 });
+
+export { mainWindow };
+

@@ -9,6 +9,7 @@ const Sidebar = () => {
   const { selectedPage, setSelectedEmail, getHeader, inboxMessageList, isConnected } = useEmailContext();
   const [mailList, setMailList] = useState<MessageType[]>([]);
   const [filterType, setFilterType] = useState<"all" | "unread" | "read" | "starred">("all");
+  const [visibleCount, setVisibleCount] = useState(10);
 
   // Extract email address from sender string
   const extractEmailFromSender = (sender: string): string => {
@@ -64,7 +65,13 @@ const Sidebar = () => {
   };
 
   const filteredEmails = getFilteredEmails();
+  const visibleEmails = filteredEmails.slice(0, visibleCount);
+  const hasMoreEmails = filteredEmails.length > visibleCount;
   console.log("📬 Filtered emails:", { filterType, count: filteredEmails.length, total: mailList.length });
+
+  useEffect(() => {
+    setVisibleCount(10);
+  }, [filterType, selectedPage, inboxMessageList]);
 
   const handleEmailClick = (mail: MessageType) => {
     if (mail.id && setSelectedEmail) {
@@ -146,7 +153,7 @@ const Sidebar = () => {
       <M3Box 
         className="list-view">
         {filteredEmails.length > 0 ? (
-          filteredEmails.map((mail: MessageType) => {
+          visibleEmails.map((mail: MessageType) => {
             const subject = getHeader(mail, "Subject");
             const from = getHeader(mail, "From");
             console.log(`📨 Rendering email - Subject: "${subject}", From: "${from}"`);
@@ -253,6 +260,26 @@ const Sidebar = () => {
               </M3Typography>
             </M3Box>
           )
+        )}
+
+        {filteredEmails.length > 0 && (
+          <M3Box sx={{ p: 2, borderTop: '1px solid #E8E7EF', display: 'flex', justifyContent: 'center' }}>
+            <M3Typography variant="bodySmall" sx={{ color: '#757680' }}>
+              Showing {Math.min(visibleCount, filteredEmails.length)} of {filteredEmails.length}
+            </M3Typography>
+          </M3Box>
+        )}
+
+        {hasMoreEmails && (
+          <M3Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+            <button
+              type="button"
+              onClick={() => setVisibleCount((prev) => prev + 10)}
+              className="px-4 py-2 text-sm font-semibold text-blue-700 border border-blue-200 rounded hover:bg-blue-50"
+            >
+              Load 10 More
+            </button>
+          </M3Box>
         )}
       </M3Box>
     </M3Box>

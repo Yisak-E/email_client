@@ -17,8 +17,8 @@ type EmailContextType = {
     trashMessageList?: MessageType[];
     showSubNav: boolean;
     setShowSubNav: (show: boolean) => void;
-    selectedPage: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash";
-    setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash") => void;
+    selectedPage: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings";
+    setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings") => void;
     selectedEmail?: MessageType;
     setSelectedEmail?: (email: MessageType) => void;
     // Email utility methods
@@ -63,7 +63,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [spamMessageList, setSpamMessages] = useState<MessageType[]>([]);
     const [trashMessageList, setTrashMessages] = useState<MessageType[]>([]);
     const [showSubNav, setShowSubNav] = useState(false);
-    const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash">("inbox");
+    const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings">("inbox");
     const [selectedEmail, setSelectedEmail] = useState<MessageType | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -76,10 +76,24 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsLoading(true);
         setError(null);
         try {
-            const result = await api.listEmails(folder);
+            const pageSize = 50;
+            let offset = 0;
+            let total = 0;
+            let allEmails: any[] = [];
+
+            do {
+                const result = await api.listEmails(folder, { limit: pageSize, offset });
+                allEmails = [...allEmails, ...result.emails];
+                total = result.total;
+                offset += result.emails.length;
+
+                if (result.emails.length === 0) {
+                    break;
+                }
+            } while (offset < total);
             
             // Convert IMAP format to MessageType
-            const messages = result.emails.map((email: any) => ({
+            const messages = allEmails.map((email: any) => ({
                 id: email.uid?.toString() || '',
                 threadId: email.uid?.toString() || '',
                 labelIds: [folder],

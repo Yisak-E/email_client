@@ -10,7 +10,20 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-electron
 *.local
+
+# Environment variables (NEVER COMMIT CREDENTIALS)
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist-electron/
+out/
+*.exe
+*.dmg
+*.msi
 
 # Editor directories and files
 .vscode/*

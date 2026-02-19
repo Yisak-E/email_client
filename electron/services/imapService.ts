@@ -51,7 +51,7 @@ export async function listEmails(folder: string, options?: { limit?: number; off
       const offset = options?.offset || 0;
 
       // Get message count
-      const mailbox = await imap.mailboxStatus(folder, { exists: true });
+      const mailbox = await imap.status(folder);
       const totalMessages = mailbox.exists || 0;
 
       // Fetch messages

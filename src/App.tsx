@@ -7,7 +7,7 @@ import { useEmailContext } from "./EmailContext";
 
 
 function App() {
-  const { isConnected } = useEmailContext();
+  const { isConnected, setSelectedPage } = useEmailContext();
   return (
    <M3Box  className="main-container">
       <M3Stack className="nav-bar-contianer"  >
@@ -69,7 +69,13 @@ function App() {
 
         {
             !isConnected ? (
-               <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"} sx={{ cursor: 'pointer' }}  >
+               <M3Box
+                className="segment-container"
+                maxHeight={"56px"}
+                maxWidth={"60px"}
+                sx={{ cursor: 'pointer' }}
+                onClick={() => setSelectedPage("settings")}
+              >
           <M3Box className={"segment-icon-container"}  >
              
               <MdLogin className="icon"/>
