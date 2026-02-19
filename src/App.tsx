@@ -1,23 +1,13 @@
 
 import { M3Avatar, M3Box, M3IconButton, M3Stack, M3Typography} from "m3r";
 import Home from "./pages/home/Home";
-import { MdColorLens, MdDoorbell, MdLogin, MdOutlineCalendarToday, MdOutlineCreate, MdOutlineEmail, MdOutlinePerson, MdSettings, MdSunny } from "react-icons/md";
+import { MdColorLens, MdDoorbell, MdOutlineCalendarToday, MdOutlineCreate, MdOutlineEmail, MdOutlinePerson, MdSettings, MdSunny } from "react-icons/md";
 import { useEmailContext } from "./EmailContext";
 
 
 
 function App() {
-  const { isConnected, setSelectedPage, connectWithAutoConfig } = useEmailContext();
-
-  const handleLoginClick = async () => {
-    try {
-      await connectWithAutoConfig();
-      setSelectedPage("inbox");
-    } catch (error) {
-      console.error("Auto Gmail login failed:", error);
-      setSelectedPage("inbox");
-    }
-  };
+  const { isConnected } = useEmailContext();
   return (
    <M3Box  className="main-container">
       <M3Stack className="nav-bar-contianer"  >
@@ -78,23 +68,7 @@ function App() {
 
 
         {
-            !isConnected ? (
-              <button
-                type="button"
-                onClick={handleLoginClick}
-                className="segment-container bg-transparent border-none p-0"
-                style={{ cursor: 'pointer', maxHeight: '56px', maxWidth: '60px' }}
-              >
-                <M3Box className={"segment-icon-container"}>
-                  <MdLogin className="icon" />
-                </M3Box>
-                <M3Box className={"flex flex-col items-top justify-center mt-1 w-full"}>
-                  <M3Typography className="segment-label" fontSize={"12px"}>
-                    Login
-                  </M3Typography>
-                </M3Box>
-              </button>
-            ) : (
+            isConnected ? (
               <M3Box className="segment-container" maxHeight={"56px"} maxWidth={"60px"}   >
           <M3Box className={"segment-icon-container"}   >
               <M3Avatar 
@@ -116,7 +90,7 @@ function App() {
             </M3Typography>
           </M3Box>
         </M3Box>
-            )
+            ) : null
         }
       </M3Stack>
      

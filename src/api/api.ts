@@ -11,7 +11,6 @@ import type {
   ImapConfig,
   SmtpConfig,
   MailOptions,
-  FetchEmailsOptions,
   FetchEmailsResult,
   Email,
   SendEmailResult,

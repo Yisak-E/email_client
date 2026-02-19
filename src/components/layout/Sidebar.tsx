@@ -87,17 +87,14 @@ const Sidebar = () => {
       {/* Connection Message */}
       {!isConnected && (
         <M3Box sx={{ px: 2, py: 2, textAlign: 'center', flexShrink: 0 }}>
-          <M3Typography variant="bodySmall" className="text-gray-600">
-            Click Login to auto-connect using Gmail IMAP + SMTP values from .env.
-          </M3Typography>
           {isLoading && (
-            <M3Typography variant="bodySmall" className="text-blue-600 mt-2 block">
-              Connecting with .env credentials...
+            <M3Typography variant="bodySmall" className="text-blue-600 block">
+              🔐 Auto-logging in with Gmail credentials from .env...
             </M3Typography>
           )}
           {!isLoading && error && (
-            <M3Typography variant="bodySmall" className="text-red-600 mt-2 block">
-              Auto login failed: {error}
+            <M3Typography variant="bodySmall" className="text-red-600 block">
+              ❌ Auto-login failed: {error}
             </M3Typography>
           )}
         </M3Box>
