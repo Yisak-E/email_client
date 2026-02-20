@@ -37,6 +37,7 @@ export interface ImapCredentials {
   host: string;
   port: number;
   secure: boolean;
+  rejectUnauthorized: boolean;
   auth: {
     user: string;
     pass: string;
@@ -87,6 +88,10 @@ function getConfig(): AppConfig {
         host: getEnvValue('VITE_GMAIL_IMAP_HOST', 'GMAIL_IMAP_HOST', 'imap.gmail.com'),
         port: parseInt(getEnvValue('VITE_GMAIL_IMAP_PORT', 'GMAIL_IMAP_PORT', '993'), 10),
         secure: parseBoolean(getEnvValue('VITE_GMAIL_IMAP_SECURE', 'GMAIL_IMAP_SECURE', 'true'), true),
+        rejectUnauthorized: parseBoolean(
+          getEnvValue('VITE_GMAIL_IMAP_REJECT_UNAUTHORIZED', 'GMAIL_IMAP_REJECT_UNAUTHORIZED', 'true'),
+          true
+        ),
         auth: {
           user: resolvedGmailUser,
           pass: resolvedGmailPass,
@@ -107,6 +112,10 @@ function getConfig(): AppConfig {
         host: getEnvValue('VITE_OUTLOOK_IMAP_HOST', 'OUTLOOK_IMAP_HOST', 'imap-mail.outlook.com'),
         port: parseInt(getEnvValue('VITE_OUTLOOK_IMAP_PORT', 'OUTLOOK_IMAP_PORT', '993'), 10),
         secure: parseBoolean(getEnvValue('VITE_OUTLOOK_IMAP_SECURE', 'OUTLOOK_IMAP_SECURE', 'true'), true),
+        rejectUnauthorized: parseBoolean(
+          getEnvValue('VITE_OUTLOOK_IMAP_REJECT_UNAUTHORIZED', 'OUTLOOK_IMAP_REJECT_UNAUTHORIZED', 'true'),
+          true
+        ),
         auth: {
           user: getEnvValue('VITE_OUTLOOK_IMAP_USER', 'OUTLOOK_IMAP_USER'),
           pass: getEnvValue('VITE_OUTLOOK_IMAP_PASS', 'OUTLOOK_IMAP_PASS'),

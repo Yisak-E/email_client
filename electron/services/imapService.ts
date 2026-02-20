@@ -6,6 +6,7 @@ interface ImapConfig {
   host: string;
   port: number;
   secure: boolean;
+  rejectUnauthorized?: boolean;
   auth: {
     user: string;
     pass: string;
@@ -77,6 +78,12 @@ export async function connectImap(config: ImapConfig) {
       host: config.host,
       port: config.port,
       tls: config.secure,
+      tlsOptions: config.secure
+        ? {
+          rejectUnauthorized: config.rejectUnauthorized ?? true,
+          servername: config.host,
+        }
+        : undefined,
     });
 
     let settled = false;

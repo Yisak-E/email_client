@@ -49,6 +49,7 @@ loadEnvFile();
 import { app, BrowserWindow, Menu, Tray, ipcMain, Notification } from 'electron';
 import isDev from './isDev';
 import { connectImap, listEmails } from './services/imapService';
+import { getEmailConfig } from './config';
 
 // Track sync state
 let lastSyncedUIDs: Set<number> = new Set();
@@ -97,14 +98,12 @@ async function initiateAutoLogin() {
   try {
     console.log('\n🔐 === HEADLESS AUTO-LOGIN INITIATED ===');
 
-    // Extract IMAP credentials from environment (support both VITE_ and non-prefixed)
-    const imapHost = process.env.VITE_GMAIL_IMAP_HOST || process.env.GMAIL_IMAP_HOST || 'imap.gmail.com';
-    const imapPort = parseInt(
-      process.env.VITE_GMAIL_IMAP_PORT || process.env.GMAIL_IMAP_PORT || '993',
-      10
-    );
-    const imapUser = process.env.VITE_GMAIL_IMAP_USER || process.env.GMAIL_IMAP_USER;
-    const imapPass = process.env.VITE_GMAIL_IMAP_PASS || process.env.GMAIL_IMAP_PASS;
+    const config = getEmailConfig();
+    const imapConfig = config.gmail.imap;
+    const imapHost = imapConfig.host;
+    const imapPort = imapConfig.port;
+    const imapUser = imapConfig.auth.user;
+    const imapPass = imapConfig.auth.pass;
 
     if (!imapUser || !imapPass) {
       console.error('❌ CRITICAL: IMAP credentials not found in .env file');
@@ -115,12 +114,14 @@ async function initiateAutoLogin() {
 
     console.log(`📧 Target: ${imapHost}:${imapPort}`);
     console.log(`👤 User: ${imapUser}`);
+    console.log(`🔒 TLS secure=${imapConfig.secure} rejectUnauthorized=${imapConfig.rejectUnauthorized}`);
 
     // Attempt IMAP connection
     const result = await connectImap({
       host: imapHost,
       port: imapPort,
-      secure: true,
+      secure: imapConfig.secure,
+      rejectUnauthorized: imapConfig.rejectUnauthorized,
       auth: {
         user: imapUser,
         pass: imapPass,

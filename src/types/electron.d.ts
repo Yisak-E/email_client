@@ -44,6 +44,7 @@ export interface ImapConfig {
   host: string;
   port: number;
   secure: boolean;
+  rejectUnauthorized?: boolean;
   auth: {
     user: string;
     pass: string;
