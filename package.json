@@ -23,7 +23,6 @@
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.5",
     "imap": "^0.8.19",
-    "imapflow": "^1.1.0",
     "m3r": "file:m3r-lib.tgz",
     "mailparser": "^3.9.3",
     "nodemailer": "^6.9.7",

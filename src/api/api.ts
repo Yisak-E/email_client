@@ -5,6 +5,9 @@
   
   This file provides a typed wrapper around window.electronAPI
   For type definitions, see src/types/electron.d.ts
+  
+  Note: This is ELECTRON-ONLY. It will NOT work in browser context.
+  The app must be run via desktop Electron with npm run dev:electron
 */
 
 import type {
@@ -18,9 +21,77 @@ import type {
   AutoConfigResult,
 } from '../types/electron';
 
+/**
+ * State tracking for API availability
+ */
+let apiReadyPromise: Promise<any> | null = null;
+let apiReady = false;
+
+/**
+ * Wait for Electron API to be available with retry logic
+ * The preload script exposes electronAPI to window after context loads
+ */
+export function waitForElectronAPI(maxRetries = 50, delayMs = 100): Promise<void> {
+  if (apiReady && window.electronAPI) {
+    return Promise.resolve();
+  }
+
+  if (apiReadyPromise) {
+    return apiReadyPromise;
+  }
+
+  apiReadyPromise = new Promise((resolve, reject) => {
+    let retries = 0;
+
+    const checkAPI = () => {
+      if (typeof window !== 'undefined' && window.electronAPI) {
+        console.log('✅ Electron API is now available');
+        apiReady = true;
+        resolve();
+        return;
+      }
+
+      retries++;
+      if (retries >= maxRetries) {
+        const error = new Error(
+          'Electron API unavailable. Run with: npm run dev:electron\n' +
+          'The app requires Electron context with preload bridge enabled.'
+        );
+        console.error('❌', error.message);
+        reject(error);
+        return;
+      }
+
+      console.log(`⏳ Waiting for Electron API... (attempt ${retries}/${maxRetries})`);
+      setTimeout(checkAPI, delayMs);
+    };
+
+    checkAPI();
+  });
+
+  return apiReadyPromise;
+}
+
 function getElectronApi() {
+  if (typeof window === 'undefined') {
+    throw new Error('window is not defined - not running in browser or Electron context');
+  }
+
+  if (!window.electronAPI) {
+    throw new Error(
+      '❌ Electron API unavailable.\n\n' +
+      'This app requires Electron with preload bridge.\n' +
+      'Run with: npm run dev:electron\n\n' +
+      'Do NOT use "npm run dev" (browser-only mode).'
+    );
+  }
+
+  return window.electronAPI;
+}
+
+function getElectronApiSafe() {
   if (typeof window === 'undefined' || !window.electronAPI) {
-    throw new Error('Electron API unavailable. Start the app with `npm run dev:electron`.');
+    return null;
   }
 
   return window.electronAPI;
@@ -63,7 +134,13 @@ export async function disconnectImap() {
  */
 export async function listFolders() {
   try {
-    const folders = await getElectronApi().getFolders();
+    const api = getElectronApiSafe();
+    if (!api) {
+      console.warn('Electron API unavailable. Returning empty folder list.');
+      return [];
+    }
+
+    const folders = await api.getFolders();
     console.log("📁 Folders retrieved:", folders);
     return folders;
   } catch (error) {
@@ -85,7 +162,13 @@ export async function listEmails(
   try {
     const limit = options?.limit || 20;
     const offset = options?.offset || 0;
-    const result = await getElectronApi().fetchEmails(folder, limit, offset);
+    const api = getElectronApiSafe();
+    if (!api) {
+      console.warn('Electron API unavailable. Returning empty email list.');
+      return { emails: [], total: 0, limit, offset };
+    }
+
+    const result = await api.fetchEmails(folder, limit, offset);
     console.log(`📧 Emails from ${folder}:`, result.emails.length);
     return result;
   } catch (error) {
@@ -208,9 +291,14 @@ export async function getSettings(): Promise<AppSettings> {
 
 /**
  * Get auto email configuration from Electron main process (.env-backed)
+ * Waits for Electron API to be available before attempting to fetch
  */
 export async function getAutoConfig(): Promise<AutoConfigResult> {
   try {
+    // Wait for Electron API to be ready
+    await waitForElectronAPI();
+    
+    console.log('📧 Fetching auto config from Electron main process...');
     return await getElectronApi().getAutoConfig();
   } catch (error) {
     console.error("❌ Failed to get auto config:", error);

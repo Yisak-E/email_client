@@ -2,11 +2,14 @@ import { ipcMain, BrowserWindow } from 'electron';
 import * as imapService from './services/imapService';
 import * as nodemailerService from './services/nodemailerService';
 import * as emailParser from './services/emailParser';
+import { setupAttachmentHandlers } from './services/attachmentService';
 import { getEmailConfig } from './config';
 
 const settings: Record<string, any> = {};
 
 export function setupIpcHandlers(mainWindow: BrowserWindow | null) {
+  // Setup attachment handlers
+  setupAttachmentHandlers();
   // ============ Window Controls ============
   ipcMain.on('window:minimize', () => {
     if (mainWindow) mainWindow.minimize();

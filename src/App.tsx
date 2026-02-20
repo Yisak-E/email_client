@@ -11,7 +11,6 @@
  */
 
 import { FC } from 'react';
-import { M3Box, M3Stack } from 'm3r';
 import { EmailProvider } from './EmailContext';
 import Home from './pages/home/Home';
 import './App.css';
@@ -25,11 +24,7 @@ import './App.css';
 const App: FC = () => {
   return (
     <EmailProvider>
-      <M3Box className="main-container">
-        <M3Stack className="app-layout">
-          <Home />
-        </M3Stack>
-      </M3Box>
+      <Home />
     </EmailProvider>
   );
 };

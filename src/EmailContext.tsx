@@ -21,10 +21,12 @@ type EmailContextType = {
     trashMessageList?: MessageType[];
     showSubNav: boolean;
     setShowSubNav: (show: boolean) => void;
-    selectedPage: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings";
-    setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings") => void;
+    selectedPage: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings" | "calendar" | "contacts" | "notes";
+    setSelectedPage: (page: "newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings" | "calendar" | "contacts" | "notes") => void;
     selectedEmail?: MessageType;
     setSelectedEmail?: (email: MessageType) => void;
+    accountEmail: string | null;
+    accountName: string | null;
     // Email utility methods
     decodeBase64: (str: string) => string;
     getHeader: (email: MessageType | undefined, name: string) => string;
@@ -53,6 +55,8 @@ const EmailContext = createContext<EmailContextType>({
     setSelectedPage: () => { },
     selectedEmail: undefined,
     setSelectedEmail: () => { },
+    accountEmail: null,
+    accountName: null,
     decodeBase64: decodeBase64,
     getHeader: getHeader,
     getEmailBody: getEmailBody,
@@ -74,12 +78,26 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [spamMessageList, setSpamMessages] = useState<MessageType[]>([]);
     const [trashMessageList, setTrashMessages] = useState<MessageType[]>([]);
     const [showSubNav, setShowSubNav] = useState(false);
-    const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings">("inbox");
+    const [selectedPage, setSelectedPage] = useState<"newMail" | "inbox" | "sent" | "drafts" | "spam" | "trash" | "settings" | "calendar" | "contacts" | "notes">("inbox");
     const [selectedEmail, setSelectedEmail] = useState<MessageType | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [folderStats, setFolderStats] = useState<FolderStats>({});
+    const [accountEmail, setAccountEmail] = useState<string | null>(null);
+    const [accountName, setAccountName] = useState<string | null>(null);
+
+    const deriveDisplayName = (email: string) => {
+        const localPart = email.split('@')[0] || '';
+        const withSpaces = localPart.replace(/[._-]+/g, ' ').trim();
+        if (!withSpaces) return email;
+
+        return withSpaces
+            .split(' ')
+            .filter(Boolean)
+            .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+            .join(' ');
+    };
 
     /**
      * Load emails from IMAP folder
@@ -152,6 +170,10 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         try {
             await api.connectImap(config);
             setIsConnected(true);
+            if (config?.auth?.user) {
+                setAccountEmail(config.auth.user);
+                setAccountName(deriveDisplayName(config.auth.user));
+            }
             // Load inbox after connecting
             await loadEmails('INBOX');
             // Load folder stats
@@ -209,7 +231,12 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     useEffect(() => {
         const initializeAutoLogin = async () => {
             try {
-                // Always try to get auto config from Electron (if running in Electron)
+                // Wait for Electron API to be available
+                console.log('⏳ Waiting for Electron API bridge...');
+                await api.waitForElectronAPI();
+                console.log('✅ Electron API bridge ready, proceeding with auto-login');
+
+                // Get auto config from Electron main process (reads .env)
                 const autoConfig = await api.getAutoConfig();
                 const gmailImapConfig = autoConfig?.gmail?.imap;
                 const gmailSmtpConfig = autoConfig?.gmail?.smtp;
@@ -230,6 +257,11 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     imapConfig: gmailImapConfig,
                     smtpConfig: gmailSmtpConfig,
                 });
+
+                if (gmailImapConfig?.auth?.user) {
+                    setAccountEmail(gmailImapConfig.auth.user);
+                    setAccountName(deriveDisplayName(gmailImapConfig.auth.user));
+                }
 
                 console.log('✅ Auto-login successful!');
             } catch (err) {
@@ -255,6 +287,8 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setSelectedPage, 
             selectedEmail, 
             setSelectedEmail, 
+            accountEmail,
+            accountName,
             decodeBase64, 
             getHeader, 
             getEmailBody,

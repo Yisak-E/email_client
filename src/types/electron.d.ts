@@ -25,6 +25,10 @@ declare global {
       configureSMTP: (config: SmtpConfig) => Promise<{ success: boolean; message: string }>;
       sendEmail: (mailOptions: MailOptions) => Promise<SendEmailResult>;
       
+      // Attachment Functions
+      downloadAttachment: (filename: string, content: string) => Promise<{ success: boolean; filepath?: string; error?: string }>;
+      openDownloads: () => Promise<{ success: boolean; error?: string }>;
+      
       // Settings
       getSettings: () => Promise<AppSettings>;
       getAutoConfig: () => Promise<AutoConfigResult>;

@@ -108,6 +108,10 @@ export interface ElectronAPI {
   configureSMTP: (config: SmtpConfig) => Promise<{ success: boolean; message: string }>;
   sendEmail: (mailOptions: MailOptions) => Promise<SendEmailResult>;
   
+  // Attachment Functions
+  downloadAttachment: (filename: string, content: string) => Promise<{ success: boolean; filepath?: string; error?: string }>;
+  openDownloads: () => Promise<{ success: boolean; error?: string }>;
+  
   // Settings Management
   getAutoConfig: () => Promise<AutoConfigResult>;
   getSettings: () => Promise<AppSettings>;
@@ -139,18 +143,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   configureSMTP: (config: SmtpConfig) => ipcRenderer.invoke('mail:configureSMTP', config),
   sendEmail: (mailOptions: MailOptions) => ipcRenderer.invoke('mail:sendEmail', mailOptions),
   
+  // Attachment Functions
+  downloadAttachment: (filename: string, content: string) => 
+    ipcRenderer.invoke('attachments:download', filename, content),
+  openDownloads: () => ipcRenderer.invoke('attachments:openDownloads'),
+  
   // Settings Management
   getAutoConfig: () => ipcRenderer.invoke('settings:getAutoConfig'),
   getSettings: () => ipcRenderer.invoke('settings:getSettings'),
   saveSettings: (settings: AppSettings) => ipcRenderer.invoke('settings:saveSettings', settings),
 } as ElectronAPI);
-
-// ============================================================
-// TypeScript Global Declaration for Window.electronAPI
-// ============================================================
-
-declare global {
-  interface Window {
-    electronAPI: ElectronAPI;
-  }
-}

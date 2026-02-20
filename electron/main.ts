@@ -46,9 +46,14 @@ function loadEnvFile() {
 loadEnvFile();
 
 // NOW import other modules after dotenv is initialized
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu, Tray, ipcMain, Notification } from 'electron';
 import isDev from './isDev';
-import { connectImap } from './services/imapService';
+import { connectImap, listEmails } from './services/imapService';
+
+// Track sync state
+let lastSyncedUIDs: Set<number> = new Set();
+let syncTimer: NodeJS.Timeout | null = null;
+let tray: Tray | null = null;
 
 // Polyfill diagnostics_channel for pino compatibility
 try {
@@ -134,6 +139,133 @@ async function initiateAutoLogin() {
   }
 }
 
+/**
+ * Setup system tray with context menu
+ */
+function setupTray() {
+  try {
+    const iconPath = isDev
+      ? path.join(__dirname, '../public/icon.png')
+      : path.join(__dirname, '../resources/icon.png');
+
+    if (fs.existsSync(iconPath)) {
+      tray = new Tray(iconPath);
+
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: '📩 Open Inbox',
+          click: () => {
+            if (mainWindow) {
+              mainWindow.show();
+              mainWindow.focus();
+            }
+          },
+        },
+        {
+          label: '🔄 Check for Mail',
+          click: async () => {
+            await syncEmails();
+            tray?.displayBalloon({
+              title: '✅ Sync Complete',
+              content: 'Checked for new mail',
+            });
+          },
+        },
+        { type: 'separator' },
+        {
+          label: '❌ Quit',
+          click: () => {
+            app.quit();
+          },
+        },
+      ]);
+
+      tray.setContextMenu(contextMenu);
+      tray.setToolTip('Email Client - Headless Mode');
+      console.log('✅ System tray icon created');
+    } else {
+      console.warn('⚠️ Tray icon not found at:', iconPath);
+    }
+  } catch (err) {
+    console.error('Failed to setup system tray:', err);
+  }
+}
+
+/**
+ * Background sync: Check INBOX for new emails every 5 minutes
+ */
+async function syncEmails() {
+  try {
+    if (!isAutoLoginComplete) {
+      console.log('⏭️  Skipping sync: Auto-login not complete');
+      return;
+    }
+
+    console.log('🔄 === BACKGROUND SYNC STARTED ===');
+
+    const result = await listEmails('INBOX', { limit: 100, offset: 0 });
+    const currentUIDs = new Set(result.emails.map((e: any) => e.uid));
+
+    // Detect new emails
+    const newEmails = Array.from(currentUIDs).filter((uid) => !lastSyncedUIDs.has(uid));
+
+    if (newEmails.length > 0) {
+      console.log(`📬 Found ${newEmails.length} new email(s)`);
+
+      // Send notification to renderer
+      if (mainWindow && !mainWindow.isVisible()) {
+        new Notification({
+          title: '📧 New Email',
+          body: `You have ${newEmails.length} new message(s)`,
+          icon: path.join(__dirname, '../public/icon.png'),
+        }).show();
+      }
+
+      // Broadcast to renderer via IPC
+      mainWindow?.webContents?.send('emails:synced', {
+        newEmailCount: newEmails.length,
+        totalEmails: result.total,
+        timestamp: new Date().toISOString(),
+      });
+    } else {
+      console.log('✅ No new emails');
+    }
+
+    // Update tracked UIDs
+    lastSyncedUIDs = currentUIDs;
+    console.log('✅ === SYNC COMPLETE ===\n');
+  } catch (err) {
+    console.error('❌ Sync failed:', err instanceof Error ? err.message : err);
+    // Don't crash - will retry next cycle
+  }
+}
+
+/**
+ * Start background sync timer (5 minute interval)
+ */
+function startBackgroundSync() {
+  console.log('⏰ Starting background sync timer (5 minute interval)');
+
+  // Run first sync immediately
+  syncEmails();
+
+  // Then every 5 minutes
+  syncTimer = setInterval(() => {
+    syncEmails();
+  }, 5 * 60 * 1000); // 5 minutes
+}
+
+/**
+ * Stop background sync timer
+ */
+function stopBackgroundSync() {
+  if (syncTimer) {
+    clearInterval(syncTimer);
+    syncTimer = null;
+    console.log('⏱️  Background sync timer stopped');
+  }
+}
+
 function createWindow() {
   const preloadCandidates = [
     path.join(__dirname, 'preload.js'),
@@ -141,13 +273,22 @@ function createWindow() {
   ];
   const preloadPath = preloadCandidates.find((candidate) => fs.existsSync(candidate)) || path.join(__dirname, 'preload.js');
 
+  console.log('🔧 Main process debug info:');
+  console.log('   __dirname:', __dirname);
+  console.log('   Preload candidates:', preloadCandidates);
+  console.log('   Selected preload path:', preloadPath);
+  console.log('   Preload exists:', fs.existsSync(preloadPath));
+
+  // Check if running in headless mode
+  const headlessMode = process.env.HEADLESS === 'true' || process.env.HEADLESS === '1';
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 800,
     minHeight: 600,
-    show: false,  // Start hidden
-    skipTaskbar: true,  // Don't show in taskbar
+    show: !headlessMode,  // Hide if headless
+    skipTaskbar: headlessMode,  // Hide from taskbar if headless
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
@@ -161,10 +302,36 @@ function createWindow() {
     ? 'http://localhost:5173'
     : `file://${path.join(__dirname, '../dist/index.html')}`;
 
+  console.log('📍 Loading URL:', startUrl);
   mainWindow.loadURL(startUrl);
+
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
+    console.log('🔨 DevTools opened (development mode)');
+  }
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  // Log when preload script has loaded
+  mainWindow.webContents.on('did-frame-finish-load', () => {
+    console.log('✅ Preload script loaded, contextBridge should be available');
+  });
+
+  // Log any console messages from renderer for debugging
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    if (message.includes('Electron API')) {
+      console.log(`[Renderer] ${message}`);
+    }
+  });
+
+  // Hide to system tray on close (if headless)
+  mainWindow.on('close', (event) => {
+    if (headlessMode && tray) {
+      event.preventDefault();
+      mainWindow?.hide();
+    }
   });
 
   const { setupIpcHandlers } = require('./ipcHandlers') as typeof import('./ipcHandlers');
@@ -177,17 +344,34 @@ app.on('ready', async () => {
   console.log('🚀 ELECTRON HEADLESS SERVICE STARTING');
   console.log('═══════════════════════════════════════\n');
 
+  // Setup system tray icon
+  setupTray();
+
   // Create the hidden window first (for IPC handlers)
   createWindow();
 
   // Initiate auto-login immediately
   await initiateAutoLogin();
+
+  // Start background sync timer after auto-login
+  if (isAutoLoginComplete) {
+    startBackgroundSync();
+  }
 });
 
 app.on('window-all-closed', () => {
   // Keep app running in background (headless mode)
   console.log('\n⚠️  Window closed, but process continues running in headless mode...');
   console.log('   Waiting for IPC requests from renderer or external processes\n');
+});
+
+app.on('before-quit', () => {
+  // Cleanup
+  stopBackgroundSync();
+  if (tray) {
+    tray.destroy();
+  }
+  console.log('🛑 Electron app shutting down...');
 });
 
 app.on('activate', () => {
