@@ -16,8 +16,6 @@ const Sidebar = () => {
     getHeader,
     inboxMessageList,
     isConnected,
-    accountEmail,
-    accountName,
     loadEmails,
     folderStats,
   } = useEmailContext();
@@ -119,30 +117,10 @@ const Sidebar = () => {
     await loadEmails(folder);
   };
 
-  const displayName = accountName || (accountEmail ? accountEmail.split('@')[0] : 'Account');
-  const displayEmail = accountEmail || '';
-  const initials = displayName
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((segment) => segment.charAt(0).toUpperCase())
-    .join('') || 'A';
+
 
   return (
-    <M3Box className="mail-list-panel">
-      <M3Box className="account-row">
-        <M3Avatar className="account-avatar">{initials}</M3Avatar>
-        <M3Box className="account-meta">
-          <M3Typography variant="labelLarge" className="account-name">
-            {displayName}
-          </M3Typography>
-          {displayEmail && (
-            <M3Typography variant="labelSmall" className="account-email">
-              {displayEmail}
-            </M3Typography>
-          )}
-        </M3Box>
-      </M3Box>
+    <M3Box className="mail-list-panel" bgcolor="surface" sx={{ display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 120px)', width: 400, border: '4px solid #400cec' }}>
 
       {!isConnected && (
         <M3Box className="status-row">

@@ -11,12 +11,12 @@ import NavRail from "../../components/layout/NavRail";
 
 
 export default function Home() {
+  
   const { selectedPage } = useEmailContext();
-
   return (
-    <M3Box className="app-shell">
+    <M3Box bgcolor="primaryContainer" sx={{ display: 'flex', height: '100vh', width: '100vw' }}>
       <NavRail />
-      <M3Box className="main-panel">
+      <M3Box  sx={{display: 'flex', flexDirection: 'column',  maxHeight: '100vh' , border: '1px solid red', width: '100%' }}>
         <NavBar />
         <M3Box className="content-container">
           <Sidebar />

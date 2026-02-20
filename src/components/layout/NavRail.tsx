@@ -1,4 +1,4 @@
-import { M3Avatar, M3Box, M3Typography } from "m3r";
+import { M3Avatar, M3Box, M3Button, M3Typography } from "m3r";
 import { useEmailContext } from "../../EmailContext";
 import {
   MdMail,
@@ -6,11 +6,17 @@ import {
   MdContacts,
   MdNote,
   MdSettings,
-  MdPerson,
 } from "react-icons/md";
 
 const NavRail = () => {
-  const { selectedPage, setSelectedPage } = useEmailContext();
+  const { selectedPage, setSelectedPage, accountName, accountEmail } = useEmailContext();
+  const displayName = accountName || (accountEmail ? accountEmail.split('@')[0] : 'Account');
+  const initials = displayName
+		.split(' ')
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((segment) => segment.charAt(0).toUpperCase())
+		.join('') || 'A';
 
   const navItems = [
     { key: "inbox", label: "Email", icon: <MdMail size={20} /> },
@@ -46,38 +52,36 @@ const NavRail = () => {
   };
 
   return (
-    <M3Box className="nav-rail">
-      <M3Box className="nav-rail-group">
+    <M3Box bgcolor="primary" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', width: 72, border: '3px solid #b5f30b', padding: 2 }}>
+      <M3Box  sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         {navItems.map((item) => (
-          <button
+          <M3Button
             key={item.key}
-            type="button"
             onClick={() => handleNavClick(item.key)}
-            className={`nav-rail-item ${selectedPage === item.key ? "active" : ""}`}
+            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: 1, borderRadius: 1}}
+            className ={`${selectedPage === item.key ? "bg-[#e4e8ff] text-[#2b3a6f]" : ""}`}
             aria-label={item.label}
           >
             {item.icon}
             <M3Typography variant="labelSmall" className="nav-rail-label">
               {item.label}
             </M3Typography>
-          </button>
+          </M3Button>
         ))}
       </M3Box>
       <M3Box className="nav-rail-footer">
-        <button
-          type="button"
+        <M3Button
           onClick={() => handleNavClick("settings")}
-          className={`nav-rail-item ${selectedPage === "settings" ? "active" : ""}`}
+          sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: 1, borderRadius: 1}}
+          className={` ${selectedPage === "settings" ? "active" : ""}`}
           aria-label="Settings"
         >
           <MdSettings size={20} />
           <M3Typography variant="labelSmall" className="nav-rail-label">
             Settings
           </M3Typography>
-        </button>
-        <M3Avatar className="nav-rail-avatar">
-          <MdPerson size={18} />
-        </M3Avatar>
+        </M3Button>
+        <M3Avatar className="account-avatar">{initials}</M3Avatar>
       </M3Box>
     </M3Box>
   );

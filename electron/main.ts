@@ -74,7 +74,6 @@ async function createMainWindow() {
     console.log(`📍 Loading URL: ${url}`);
     await mainWindow.loadURL(url);
     mainWindow.webContents.openDevTools({ mode: 'detach' });
-    console.log('🔨 DevTools opened (development mode)');
   } else {
     const indexPath = path.join(__dirname, '../dist/index.html');
     console.log(`📍 Loading file: ${indexPath}`);
@@ -86,7 +85,7 @@ async function createMainWindow() {
   });
 
   mainWindow.on('closed', () => {
-    mainWindow = null;
+    //mainWindow = null;
   });
 
   mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
