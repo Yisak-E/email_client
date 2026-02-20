@@ -354,6 +354,44 @@ background-color: #f7f7fb;
     color: #2f2f38;
 }
 
+.folder-popup-anchor {
+    position: relative;
+    display: inline-flex;
+}
+
+.folder-popup-menu {
+    position: absolute;
+    top: 32px;
+    left: 0;
+    min-width: 180px;
+    background: #ffffff;
+    border: 1px solid #ececf3;
+    border-radius: 10px;
+    z-index: 20;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.folder-popup-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #2f2f38;
+}
+
+.folder-popup-item:hover,
+.folder-popup-item.active {
+    background-color: #f1f2f8;
+}
+
 .mail-list-actions {
     display: flex;
     align-items: center;

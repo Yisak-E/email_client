@@ -91,6 +91,17 @@ export interface SendEmailResult {
   messageId: string;
 }
 
+export interface ParsedEmail {
+  uid?: number;
+  from?: string;
+  to?: string;
+  subject?: string;
+  text?: string;
+  html?: string;
+  date?: Date;
+  attachments?: any[];
+}
+
 // ============================================================
 // ELECTRON API - Main Process Interface
 // ============================================================
@@ -113,6 +124,9 @@ export interface ElectronAPI {
   // SMTP Email Functions
   configureSMTP: (config: SmtpConfig) => Promise<{ success: boolean; message: string }>;
   sendEmail: (mailOptions: MailOptions) => Promise<SendEmailResult>;
+
+  // Parser Functions
+  parseEmail: (emailData: any) => Promise<ParsedEmail>;
   
   // Settings Management
   getAutoConfig: () => Promise<AutoConfigResult>;
@@ -156,6 +170,10 @@ const electronAPI: ElectronAPI = {
   
   sendEmail: (mailOptions: MailOptions) =>
     ipcRenderer.invoke('mail:sendEmail', mailOptions),
+
+  // Parser Functions
+  parseEmail: (emailData: any) =>
+    ipcRenderer.invoke('mail:parseEmail', emailData),
   
   // Settings
   getAutoConfig: () => ipcRenderer.invoke('settings:getAutoConfig'),

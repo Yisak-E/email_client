@@ -161,7 +161,30 @@ export async function listFolders(): Promise<string[]> {
         reject(err);
         return;
       }
-      resolve(Object.keys(boxes));
+
+      const selectableFolders: string[] = [];
+
+      const collectFolders = (folderTree: Record<string, any>, prefix = '') => {
+        for (const [name, box] of Object.entries(folderTree)) {
+          const delimiter = typeof box?.delimiter === 'string' ? box.delimiter : '/';
+          const fullName = prefix ? `${prefix}${delimiter}${name}` : name;
+          const attributes = Array.isArray(box?.attribs)
+            ? box.attribs.map((value: string) => value.toUpperCase())
+            : [];
+          const isNoSelect = attributes.includes('\\NOSELECT');
+
+          if (!isNoSelect) {
+            selectableFolders.push(fullName);
+          }
+
+          if (box?.children && typeof box.children === 'object') {
+            collectFolders(box.children as Record<string, any>, fullName);
+          }
+        }
+      };
+
+      collectFolders(boxes as Record<string, any>);
+      resolve(selectableFolders);
     });
   });
 }

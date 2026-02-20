@@ -86,6 +86,17 @@ export interface SendEmailResult {
   messageId: string;
 }
 
+export interface ParsedEmail {
+  uid?: number;
+  from?: string;
+  to?: string;
+  subject?: string;
+  text?: string;
+  html?: string;
+  date?: Date;
+  attachments?: any[];
+}
+
 // ============================================================
 // ElectronAPI - Complete Whitelist of IPC Methods
 // ============================================================
@@ -108,6 +119,9 @@ export interface ElectronAPI {
   // SMTP Functions
   configureSMTP: (config: SmtpConfig) => Promise<{ success: boolean; message: string }>;
   sendEmail: (mailOptions: MailOptions) => Promise<SendEmailResult>;
+
+  // Parser Functions
+  parseEmail: (emailData: any) => Promise<ParsedEmail>;
   
   // Attachment Functions
   downloadAttachment: (filename: string, content: string) => Promise<{ success: boolean; filepath?: string; error?: string }>;
@@ -143,6 +157,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // SMTP Functions
   configureSMTP: (config: SmtpConfig) => ipcRenderer.invoke('mail:configureSMTP', config),
   sendEmail: (mailOptions: MailOptions) => ipcRenderer.invoke('mail:sendEmail', mailOptions),
+
+  // Parser Functions
+  parseEmail: (emailData: any) => ipcRenderer.invoke('mail:parseEmail', emailData),
   
   // Attachment Functions
   downloadAttachment: (filename: string, content: string) => 

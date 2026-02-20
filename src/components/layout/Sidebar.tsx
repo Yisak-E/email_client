@@ -1,9 +1,12 @@
 import { M3Avatar, M3Box, M3Typography, M3Chip, M3Checkbox } from "m3r";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MessageType } from "../../types/MailType";
 import { useEmailContext } from "../../EmailContext";
 import { IoReorderThreeSharp } from "react-icons/io5";
 
+type FolderName = 'INBOX' | 'Sent' | 'Drafts' | 'Spam' | 'Trash';
+
+const folderOptions: FolderName[] = ['INBOX', 'Sent', 'Drafts', 'Spam', 'Trash'];
 
 const Sidebar = () => {
   const {
@@ -15,10 +18,15 @@ const Sidebar = () => {
     isConnected,
     accountEmail,
     accountName,
+    loadEmails,
+    folderStats,
   } = useEmailContext();
   const [mailList, setMailList] = useState<MessageType[]>([]);
   const [filterType, setFilterType] = useState<"all" | "unread" | "read" | "starred" | "today">("all");
   const [visibleCount, setVisibleCount] = useState(10);
+  const [isFolderPopupOpen, setIsFolderPopupOpen] = useState(false);
+  const [activeFolder, setActiveFolder] = useState<FolderName>('INBOX');
+  const folderPopupRef = useRef<HTMLDivElement | null>(null);
 
   const extractEmailFromSender = (sender: string): string => {
     const emailMatch = sender.match(/<(.+?)>/);
@@ -78,6 +86,21 @@ const Sidebar = () => {
     setVisibleCount(10);
   }, [filterType, selectedPage, inboxMessageList]);
 
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (!folderPopupRef.current) return;
+      const targetNode = event.target as Node;
+      if (!folderPopupRef.current.contains(targetNode)) {
+        setIsFolderPopupOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, []);
+
   const handleEmailClick = (mail: MessageType) => {
     if (mail.id && setSelectedEmail) {
       setSelectedEmail(mail);
@@ -86,6 +109,14 @@ const Sidebar = () => {
 
   const handleClear = () => {
     setFilterType("all");
+  };
+
+  const handleFolderSelect = async (folder: FolderName) => {
+    setIsFolderPopupOpen(false);
+    setFilterType('all');
+    setVisibleCount(10);
+    setActiveFolder(folder);
+    await loadEmails(folder);
   };
 
   const displayName = accountName || (accountEmail ? accountEmail.split('@')[0] : 'Account');
@@ -125,9 +156,37 @@ const Sidebar = () => {
         <>
           <M3Box className="mail-list-header">
             <M3Box className="mail-list-title">
-              <IoReorderThreeSharp size={18} />
+              <M3Box ref={folderPopupRef} className="folder-popup-anchor">
+                <button
+                  type="button"
+                  className="text-button"
+                  aria-label="Toggle folders"
+                  onClick={() => setIsFolderPopupOpen((value) => !value)}
+                >
+                  <IoReorderThreeSharp size={18} />
+                </button>
+                {isFolderPopupOpen && (
+                  <M3Box className="folder-popup-menu">
+                    {folderOptions.map((folder) => {
+                      const isActiveFolder = activeFolder === folder;
+                      const count = folderStats?.[folder] ?? 0;
+                      return (
+                        <button
+                          key={folder}
+                          type="button"
+                          className={`folder-popup-item ${isActiveFolder ? 'active' : ''}`}
+                          onClick={() => handleFolderSelect(folder)}
+                        >
+                          <span>{folder}</span>
+                          <span>{count}</span>
+                        </button>
+                      );
+                    })}
+                  </M3Box>
+                )}
+              </M3Box>
               <M3Typography variant="titleMedium">
-                Inbox ({mailList.length})
+                {activeFolder} ({mailList.length})
               </M3Typography>
             </M3Box>
             <M3Box className="mail-list-actions">

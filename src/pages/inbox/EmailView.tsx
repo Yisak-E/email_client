@@ -1,6 +1,5 @@
 import { useEmailContext } from '../../EmailContext';
 import { M3Box, M3Typography } from 'm3r';
-import { MdMail } from 'react-icons/md';
 
 
 const EmailView = () => {

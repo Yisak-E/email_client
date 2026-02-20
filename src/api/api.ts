@@ -40,7 +40,7 @@ export function waitForElectronAPI(maxRetries = 50, delayMs = 100): Promise<void
     return apiReadyPromise;
   }
 
-  apiReadyPromise = new Promise((resolve, reject) => {
+  apiReadyPromise = new Promise<void>((resolve, reject) => {
     let retries = 0;
 
     const checkAPI = () => {

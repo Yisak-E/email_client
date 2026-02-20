@@ -24,6 +24,9 @@ declare global {
       // SMTP Functions
       configureSMTP: (config: SmtpConfig) => Promise<{ success: boolean; message: string }>;
       sendEmail: (mailOptions: MailOptions) => Promise<SendEmailResult>;
+
+      // Parser Functions
+      parseEmail: (emailData: any) => Promise<ParsedEmail>;
       
       // Attachment Functions
       downloadAttachment: (filename: string, content: string) => Promise<{ success: boolean; filepath?: string; error?: string }>;

@@ -10,7 +10,7 @@
  * - Renderer (Frontend): React app in src/
  */
 
-import { FC } from 'react';
+import type { FC } from 'react';
 import { EmailProvider } from './EmailContext';
 import Home from './pages/home/Home';
 import './App.css';

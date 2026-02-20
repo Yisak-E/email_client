@@ -9,6 +9,59 @@ import type { MessageType } from "./types/MailType";
 import { decodeBase64, getHeader, getEmailBody } from "./utils/emailUtils";
 import * as api from "./api/api";
 
+type CanonicalFolder = 'INBOX' | 'Sent' | 'Drafts' | 'Spam' | 'Trash';
+
+const CANONICAL_FOLDERS: CanonicalFolder[] = ['INBOX', 'Sent', 'Drafts', 'Spam', 'Trash'];
+
+const FOLDER_ALIASES: Record<CanonicalFolder, string[]> = {
+    INBOX: ['inbox'],
+    Sent: ['sent', 'sent mail', 'sent items', 'sent messages'],
+    Drafts: ['drafts', 'draft'],
+    Spam: ['spam', 'junk', 'junk email', 'bulk mail'],
+    Trash: ['trash', 'bin', 'deleted', 'deleted items'],
+};
+
+function normalizeFolderName(value: string): string {
+    return value
+        .trim()
+        .toLowerCase()
+        .replace(/\\+/g, '/')
+        .replace(/\.+/g, '.')
+        .replace(/\s+/g, ' ');
+}
+
+function resolveFolderAlias(target: CanonicalFolder, folders: string[]): string {
+    if (!folders.length) {
+        return target;
+    }
+
+    const normalizedTarget = normalizeFolderName(target);
+    const exactTarget = folders.find((folder) => normalizeFolderName(folder) === normalizedTarget);
+    if (exactTarget) {
+        return exactTarget;
+    }
+
+    const aliases = FOLDER_ALIASES[target];
+    const matched = folders.filter((folder) => {
+        const normalizedFolder = normalizeFolderName(folder);
+        return aliases.some((alias) => {
+            const normalizedAlias = normalizeFolderName(alias);
+            return (
+                normalizedFolder === normalizedAlias ||
+                normalizedFolder.endsWith(`/${normalizedAlias}`) ||
+                normalizedFolder.endsWith(`.${normalizedAlias}`)
+            );
+        });
+    });
+
+    if (matched.length === 0) {
+        return target;
+    }
+
+    const gmailPreferred = matched.find((folder) => normalizeFolderName(folder).startsWith('[gmail]/'));
+    return gmailPreferred || matched[0];
+}
+
 interface FolderStats {
     [key: string]: number;
 }
@@ -84,6 +137,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [error, setError] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [folderStats, setFolderStats] = useState<FolderStats>({});
+    const [availableFolders, setAvailableFolders] = useState<string[]>([]);
     const [accountEmail, setAccountEmail] = useState<string | null>(null);
     const [accountName, setAccountName] = useState<string | null>(null);
 
@@ -106,13 +160,25 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsLoading(true);
         setError(null);
         try {
+            const providerFolders = availableFolders.length > 0
+                ? availableFolders
+                : await api.listFolders();
+
+            if (availableFolders.length === 0) {
+                setAvailableFolders(providerFolders);
+            }
+
+            const folderToFetch = CANONICAL_FOLDERS.includes(folder as CanonicalFolder)
+                ? resolveFolderAlias(folder as CanonicalFolder, providerFolders)
+                : folder;
+
             const pageSize = 50;
             let offset = 0;
             let total = 0;
             let allEmails: any[] = [];
 
             do {
-                const result = await api.listEmails(folder, { limit: pageSize, offset });
+                const result = await api.listEmails(folderToFetch, { limit: pageSize, offset });
                 allEmails = [...allEmails, ...result.emails];
                 total = result.total;
                 offset += result.emails.length;
@@ -208,12 +274,21 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const loadFolderStats = async () => {
         try {
             const folders = await api.listFolders();
-            const stats: FolderStats = {};
+            setAvailableFolders(folders);
 
-            for (const folder of folders) {
+            const stats: FolderStats = {};
+            const cachedTotals: Record<string, number> = {};
+
+            for (const folder of CANONICAL_FOLDERS) {
                 try {
-                    const result = await api.listEmails(folder, { limit: 1, offset: 0 });
-                    stats[folder] = result.total;
+                    const resolvedFolder = resolveFolderAlias(folder, folders);
+
+                    if (cachedTotals[resolvedFolder] === undefined) {
+                        const result = await api.listEmails(resolvedFolder, { limit: 1, offset: 0 });
+                        cachedTotals[resolvedFolder] = result.total;
+                    }
+
+                    stats[folder] = cachedTotals[resolvedFolder];
                 } catch (err) {
                     console.warn(`Could not load stats for folder ${folder}:`, err);
                     stats[folder] = 0;
