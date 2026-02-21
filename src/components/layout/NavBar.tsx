@@ -1,6 +1,6 @@
-import { M3Box, M3Typography, M3TextField, M3Avatar } from "m3r";
+import { M3Box, M3Typography, M3TextField } from "m3r";
 import { MdMoreVert } from "react-icons/md";
-import { useEmailContext } from "../../EmailContext";
+import { useEmailContext } from "../../contexts/EmailContext";
 
 const NavBar = () => {
 	const {  accountEmail, accountName } = useEmailContext();

@@ -3,10 +3,10 @@ import { EmailProvider } from './EmailContext';
 
 
 import { M3Provider } from 'm3r';
-import CalendarView from './Component/Views/CalendarView';
+import CalendarView from './Components/Views/CalendarView';
 import ComposeModal from './Components/Mail/ComposeMail';
-import MainLayout from './Component/layout/MainLayout';
-import EmailView from './Component/Views/EmailView';
+import MainLayout from './Components/Layout/MainLayout';
+import EmailView from './Components/Views/EmailView';
 import { useState } from 'react';
 
 
@@ -29,6 +29,8 @@ function App() {
             onComposeClick={() => setIsComposeOpen(true)}
           >
             {currentView === 'email' && <EmailView />}
+            {currentView === 'calendar' && <CalendarView />}
+            
           </MainLayout>
           <ComposeModal open={isComposeOpen} onClose={() => setIsComposeOpen(false)} />
         </EmailProvider>
