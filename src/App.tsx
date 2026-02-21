@@ -1,32 +1,40 @@
 
-/**
- * APP.TSX - Root React Component (Renderer Layer)
- * 
- * Main application layout and routing
- * 
- * 3-Layer Architecture:
- * - Main Process (Backend): electron/main.ts + services
- * - Preload/IPC Bridge: electron/preload.ts
- * - Renderer (Frontend): React app in src/
- */
-
-import type { FC } from 'react';
 import { EmailProvider } from './EmailContext';
-import Home from './pages/home/Home';
-import './App.css';
 
-/**
- * Main App Component
- * - Wraps entire app with EmailContext for state management
- * - Provides main layout structure
- * - Routes to Home page
- */
-const App: FC = () => {
+
+import { M3Provider } from 'm3r';
+import CalendarView from './Component/Views/CalendarView';
+import ComposeModal from './Components/Mail/ComposeMail';
+import MainLayout from './Component/layout/MainLayout';
+import EmailView from './Component/Views/EmailView';
+import { useState } from 'react';
+
+
+function App() {
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('dark');
+  const [currentView, setCurrentView] = useState<'email' | 'calendar'>('email');
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
+
+  const toggleTheme = () => {
+    setThemeMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
   return (
-    <EmailProvider>
-      <Home />
-    </EmailProvider>
-  );
-};
+    <M3Provider themeColor="#777" themeMode={themeMode} key={themeMode}>
+       <EmailProvider>  
+          <MainLayout
+            isDarkMode={themeMode === 'dark'}
+            onToggleTheme={toggleTheme}
+            onViewChange={setCurrentView}
+            onComposeClick={() => setIsComposeOpen(true)}
+          >
+            {currentView === 'email' && <EmailView />}
+          </MainLayout>
+          <ComposeModal open={isComposeOpen} onClose={() => setIsComposeOpen(false)} />
+        </EmailProvider>
+    </M3Provider >
+  )
+}
 
-export default App;
+
+export default App

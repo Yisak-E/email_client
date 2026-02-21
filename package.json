@@ -4,16 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "main": "dist-electron/main.js",
-  "scripts": {
+  
+   "scripts": {
     "dev": "vite",
-    "dev:electron": "tsc -p tsconfig.electron.json && node scripts/prepare-electron-dist.cjs && concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "build": "tsc -b && vite build",
-    "build:electron": "tsc -p tsconfig.electron.json && node scripts/prepare-electron-dist.cjs && vite build && electron-builder",
+    "dev:electron": "concurrently \"cross-env NODE_ENV=development wait-on http://localhost:5173 && electron .\" \"vite\"",
+    "build": "tsc -b && vite build && electron-builder",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "electron": "electron .",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
